@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String  , required : [true , 'Password is required']},
     isActive: { type: Boolean, default: true },
-    role: { type: String, enum: ['user', 'theatreAdmin', 'admin'] },
+    role: { type: String, enum: ['user', 'theatreAdmin', 'admin'] , deafult : 'user' },
     avatar: { type: String },
     is2FAEnabled: { type: Boolean, default: false },
     otp2FA: {
