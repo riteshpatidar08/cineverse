@@ -1,6 +1,8 @@
 const User = require('../models/userModel.js');
-
+const asyncHandler = require('express-async-handler')
 const { hashPassword, comparePassword } = require('../utils/bcrypt.js');
+
+
 exports.register = async (req,res,next) => {
   try {
     const { name, email, mobileNo, password } = req.body;
@@ -24,10 +26,37 @@ exports.register = async (req,res,next) => {
   }
 };
 
-exports.login = async () => {
-  try {
-  } catch (error) {}
-};
+exports.login = asyncHandler(async () => {
+const {email , password}  = req.body ;
+const user = await User.findOne({email}) ;
+
+if(!user){
+  const error = new Error("Account is not registred");
+  error.statusCode = 400;
+  throw error
+}
+
+const isPasswordMatch = await comparePassword(password , user.password)
+if(!isPasswordMatch){
+  const error = new Error("Password is incorrect");
+  error.statusCode = 401;
+  throw error
+}
+
+//2fa user.is2faEnabled : agar true hogi then i have to send the otp ;
+if(!user.is2faEnabled){
+  //generate ttoke
+  // res.cookie('token')
+
+
+  
+  //generate otp , claculate the expiry time then send the otp to the mail and send the response with 2faIsRequired field message : "OTP IS SUCCESSFULLY SENT ON YOUR REGISTED NUMBER"
+
+ return   res.status(200).json({
+  message : "success"
+ })
+}
+
 
 exports.enabled2Fa = async () => {
   try {
