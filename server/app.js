@@ -4,6 +4,8 @@ const app = express();
 const dotenv = require('dotenv');
 const dbConnect = require('./config/db.js');
 const morgan = require('morgan');
+const authRoutes = require('./routes/authRoutes.js');
+const errorHandler = require('./middlewares/errorHandler.js');
 //NOTE sync the .env files variables in process.env
 
 dotenv.config();
@@ -27,6 +29,8 @@ app.get('/', (req, res, next) => {
   }
 });
 
+app.use('/api/v1/auth' , authRoutes)
+
 //Handler for the route which is not found
 app.use((req, res) => {
   res.status(404).json({
@@ -35,11 +39,6 @@ app.use((req, res) => {
 });
 
 //GLOBAL ERROR HANDLER
-app.use((err, req, res, next) => {
-  res.status(err.status).json({
-    success: false,
-    error: err.message,
-  });
-});
+app.use(errorHandler);
 
 module.exports = app;
