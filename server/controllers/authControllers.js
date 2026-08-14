@@ -66,7 +66,8 @@ exports.login = asyncHandler(async () => {
   const OTP = Math.floor(100000 + Math.random() * 900000).toString();
 
   user.otp2fa = OTP;
-  user.otpExpires = Date.now() + 60 * 1000;
+  user.otpExpires = Date.now() + 5 * 60 * 1000;
+  user.otpSentLastTime = Date.now()
   await user.save();
 
   res.send('OTP IS SUCCESSFULLY SENT ON YOUR REGISTERED EMAIL..');
@@ -78,12 +79,18 @@ exports.enabled2Fa = asyncHandler(async () => {
   const user = await User.findById(id);
   user.is2faEnabled = status;
   await user.save();
+  res.status(200).json({
+    message  : "Two factor authentication is enabled"
+  }) 
 });
 
 exports.disabled2fa = asyncHandler(async () => {
   const { id, status } = req.body;
   const user = await User.findById(id);
   user.is2faEnabled = status;
+  res.status(200).json({
+    message  : "Two factor authentication is disabled
+  }) 
 });
 
 exports.verifyOtp = asyncHandler(async () => {
@@ -115,7 +122,39 @@ exports.verifyOtp = asyncHandler(async () => {
   });
 });
 
-exports.resendOtp = async () => {
-  try {
-  } catch (error) {}
-};
+exports.resendOtp =asyncHandler( async () => {
+ 
+    const {email} = req.body ;
+    const user = await User.findOne({email});
+
+  if(Date.now() - user.otpSentLastTime < (2 * 60 * 100)){
+//  const time = Math.ceil((2*60*1000 - (Date.now() - user.otpSentLastTIme)) / 1000) ;
+//    return res.status(429).json({
+//     message : `You can only send otp after ${time} sec`
+  //  })
+
+  const retryTime = user.otpSentLastTime +  ( 2 * 60 * 1000) ;
+  return res.status(429).json({
+    message : "Wait before requesting another otp",
+    retryTime 
+  })
+
+  }
+ //wait 60 sec before requesting another new otp;
+
+ const OTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+  user.otp2fa = OTP;
+  user.otpExpires = Date.now() + 5 * 60 * 1000;
+  user.otpSentLastTime = Date.now()
+  await user.save();
+
+res.status(200).json({
+  message : "OTP SENT SUCCESSFULLY"
+})
+ 
+});
+
+
+//expiry =>
+// time-limit = 3 min ek hi baar bhj skta hain 2 min k baad try krega 
