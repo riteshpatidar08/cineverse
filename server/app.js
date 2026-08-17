@@ -6,8 +6,13 @@ const dbConnect = require('./config/db.js');
 const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes.js');
 const errorHandler = require('./middlewares/errorHandler.js');
+const cors = require('cors')
 //NOTE sync the .env files variables in process.env
-
+app.use(cors(
+  {origin : "http://localhost:5173" , 
+    credentials : true
+  }
+));
 dotenv.config();
 
 if (process.env.NODE_ENV === 'DEVELOPMENT') {

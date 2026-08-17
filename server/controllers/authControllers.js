@@ -7,6 +7,7 @@ const generateToken = require('../utils/jwt.js');
 exports.register = async (req, res, next) => {
   try {
     const { name, email, mobileNo, password } = req.body;
+    console.log('register api is running.....')
     // validation middleware ;
     const user = await User.findOne({ email });
     if (user) {
@@ -89,7 +90,7 @@ exports.disabled2fa = asyncHandler(async () => {
   const user = await User.findById(id);
   user.is2faEnabled = status;
   res.status(200).json({
-    message  : "Two factor authentication is disabled
+    message  : "Two factor authentication is disabled"
   }) 
 });
 

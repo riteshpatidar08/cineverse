@@ -1,5 +1,5 @@
 const errorHandler = (err, req, res, next) => {
-  let statusCode = err.statusCode;
+  let statusCode = err.statusCode || 500
   let message = err.message;
 
   //NOTE how to handle errors with different names

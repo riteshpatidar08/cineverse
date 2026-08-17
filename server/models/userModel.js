@@ -3,11 +3,10 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    email: { type: String   , unique : true},
+    email: { type: String, unique: true },
     mobileNo: {
       type: String,
       validate: {
-
         validator: function (v) {
           return /^(?:\+91|91|0)?[6-9]\d{9}$/.test(v);
         },
@@ -16,9 +15,13 @@ const userSchema = new mongoose.Schema(
 
       required: [true, 'User phone number required'],
     },
-    password: { type: String  , required : [true , 'Password is required']},
+    password: { type: String, required: [true, 'Password is required'] },
     isActive: { type: Boolean, default: true },
-    role: { type: String, enum: ['user', 'theatreAdmin', 'admin'] , deafult : 'user' },
+    role: {
+      type: String,
+      enum: ['user', 'theatreAdmin', 'admin'],
+      deafult: 'user',
+    },
     avatar: { type: String },
     is2FAEnabled: { type: Boolean, default: false },
     otp2FA: {
@@ -27,8 +30,8 @@ const userSchema = new mongoose.Schema(
     otpExpires: {
       type: Date,
     },
-    otpSentLastTime : {
-      type : Date
+    otpSentLastTime: {
+      type: Date,
     },
     isVerified: {
       type: Boolean,
