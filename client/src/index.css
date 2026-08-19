@@ -38,7 +38,10 @@
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.45) 100%);
+  --glass-border: rgba(71, 27, 142, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(71, 27, 142, 0.04);
+
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -55,7 +58,7 @@
 /* Dark theme setup - supports both media queries and class-based dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a0c20; /* Midnight Navy from logo */
+    --bg: #000000; /* Black from logo */
     --text: #b0a7c4; /* Soft lavender-gray */
     --text-h: #ffffff; /* Crisp white for headings */
     --border: #231c44; /* Dark purple border */
@@ -71,8 +74,9 @@
     --accent: #ffbc47;
     --accent-bg: rgba(255, 188, 71, 0.1);
     --accent-border: rgba(255, 188, 71, 0.4);
-    --social-bg: rgba(35, 13, 86, 0.5);
-    --shadow: rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
   }
 
   #social .button-icon {
@@ -82,7 +86,7 @@
 
 /* Class-based Dark Mode support (.dark) */
 .dark {
-  --bg: #0a0c20;
+  --bg: #000000; /* Black from logo */
   --text: #b0a7c4;
   --text-h: #ffffff;
   --border: #231c44;
@@ -97,8 +101,9 @@
   --accent: #ffbc47;
   --accent-bg: rgba(255, 188, 71, 0.1);
   --accent-border: rgba(255, 188, 71, 0.4);
-  --social-bg: rgba(35, 13, 86, 0.5);
-  --shadow: rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
 }
 .dark #social .button-icon {
   filter: invert(1) brightness(2);
@@ -112,6 +117,15 @@
   --color-secondary-hover: rgb(var(--color-secondary-hover));
   --color-accent: rgb(var(--color-accent));
   --color-neutral-dark: rgb(var(--color-neutral-dark));
+  --color-bg: var(--bg);
+}
+
+@utility glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 body {
@@ -119,14 +133,14 @@ body {
 }
 
 #root {
-  width: 1126px;
+  /* width: 1126px;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
+
   min-height: 100svh;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; */
   box-sizing: border-box;
 }
 
@@ -173,3 +187,30 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+@keyframes float-medium {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(15px) scale(0.95);
+  }
+}
+
+@utility animate-float-slow {
+  animation: float-slow 10s ease-in-out infinite;
+}
+
+@utility animate-float-medium {
+  animation: float-medium 8s ease-in-out infinite;
+}
+
