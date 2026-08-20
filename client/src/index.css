@@ -19,12 +19,12 @@
   --code-bg: #f2eefa;
   
   /* Raw RGB values to allow Tailwind opacity modifiers (e.g., bg-primary/20) */
-  --color-primary: 71 27 142;        /* #471b8e - Deep Purple */
-  --color-primary-hover: 53 19 113;  /* #351371 - Darker Purple */
-  --color-secondary: 255 151 64;     /* #ff9740 - Bright Orange */
-  --color-secondary-hover: 255 188 71; /* #ffbc47 - Golden Yellow */
-  --color-accent: 142 127 196;       /* #8e7fc4 - Lavender */
-  --color-neutral-dark: 10 12 32;    /* #0a0c20 - Midnight Navy */
+  --rgb-primary: 71 27 142;        /* #471b8e - Deep Purple */
+  --rgb-primary-hover: 53 19 113;  /* #351371 - Darker Purple */
+  --rgb-secondary: 255 151 64;     /* #ff9740 - Bright Orange */
+  --rgb-secondary-hover: 255 188 71; /* #ffbc47 - Golden Yellow */
+  --rgb-accent: 142 127 196;       /* #8e7fc4 - Lavender */
+  --rgb-neutral-dark: 10 12 32;    /* #0a0c20 - Midnight Navy */
 
   /* Legacy & utility mappings */
   --accent: #471b8e;
@@ -65,11 +65,11 @@
     --code-bg: #14122e;
     
     /* Swap primary/accent in dark mode for readability and contrast */
-    --color-primary: 142 127 196;       /* #8e7fc4 - Lavender */
-    --color-primary-hover: 255 255 255;
-    --color-secondary: 255 188 71;      /* #ffbc47 - Golden Yellow */
-    --color-secondary-hover: 255 151 64; /* #ff9740 - Bright Orange */
-    --color-accent: 255 151 64;         /* #ff9740 - Bright Orange */
+    --rgb-primary: 142 127 196;       /* #8e7fc4 - Lavender */
+    --rgb-primary-hover: 255 255 255;
+    --rgb-secondary: 255 188 71;      /* #ffbc47 - Golden Yellow */
+    --rgb-secondary-hover: 255 151 64; /* #ff9740 - Bright Orange */
+    --rgb-accent: 255 151 64;         /* #ff9740 - Bright Orange */
     
     --accent: #ffbc47;
     --accent-bg: rgba(255, 188, 71, 0.1);
@@ -92,11 +92,11 @@
   --border: #231c44;
   --code-bg: #14122e;
   
-  --color-primary: 142 127 196;
-  --color-primary-hover: 255 255 255;
-  --color-secondary: 255 188 71;
-  --color-secondary-hover: 255 151 64;
-  --color-accent: 255 151 64;
+  --rgb-primary: 142 127 196;
+  --rgb-primary-hover: 255 255 255;
+  --rgb-secondary: 255 188 71;
+  --rgb-secondary-hover: 255 151 64;
+  --rgb-accent: 255 151 64;
   
   --accent: #ffbc47;
   --accent-bg: rgba(255, 188, 71, 0.1);
@@ -111,12 +111,12 @@
 
 /* Tailwind CSS v4 @theme directive mapping (if Tailwind v4 is in use) */
 @theme {
-  --color-primary: rgb(var(--color-primary));
-  --color-primary-hover: rgb(var(--color-primary-hover));
-  --color-secondary: rgb(var(--color-secondary));
-  --color-secondary-hover: rgb(var(--color-secondary-hover));
-  --color-accent: rgb(var(--color-accent));
-  --color-neutral-dark: rgb(var(--color-neutral-dark));
+  --color-primary: rgb(var(--rgb-primary));
+  --color-primary-hover: rgb(var(--rgb-primary-hover));
+  --color-secondary: rgb(var(--rgb-secondary));
+  --color-secondary-hover: rgb(var(--rgb-secondary-hover));
+  --color-accent: rgb(var(--rgb-accent));
+  --color-neutral-dark: rgb(var(--rgb-neutral-dark));
   --color-bg: var(--bg);
 }
 

@@ -11,7 +11,7 @@ export const Input = React.forwardRef(({
     <input
       type={type}
       className={cn(
-        'flex h-10 w-full rounded-lg glass border-white/10 dark:border-white/5 px-3 py-1.5 text-sm text-text-h placeholder:text-text/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/45 focus-visible:border-primary/45 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40',
+        'flex h-10 w-full rounded-lg border border-border bg-white/5 dark:bg-white/[0.03] px-3 py-1.5 text-sm text-text-h placeholder:text-text/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40',
         error && 'border-red-500/50 focus-visible:ring-red-500/20 focus-visible:border-red-500/50',
         className
       )}

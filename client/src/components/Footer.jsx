@@ -22,7 +22,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-xs text-text/60 leading-relaxed max-w-xs">
-            Discover and explore a infinite universe of movies, TV shows, and entertainment databases.
+            Discover and explore an infinite universe of movies, TV shows, and entertainment databases.
           </p>
         </div>
 

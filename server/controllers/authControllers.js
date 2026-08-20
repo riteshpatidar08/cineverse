@@ -81,8 +81,8 @@ exports.enabled2Fa = asyncHandler(async () => {
   user.is2faEnabled = status;
   await user.save();
   res.status(200).json({
-    message  : "Two factor authentication is enabled"
-  }) 
+    message: "Two factor authentication is enabled"
+  })
 });
 
 exports.disabled2fa = asyncHandler(async () => {
@@ -90,8 +90,8 @@ exports.disabled2fa = asyncHandler(async () => {
   const user = await User.findById(id);
   user.is2faEnabled = status;
   res.status(200).json({
-    message  : "Two factor authentication is disabled"
-  }) 
+    message: "Two factor authentication is disabled"
+  })
 });
 
 exports.verifyOtp = asyncHandler(async () => {
@@ -123,37 +123,37 @@ exports.verifyOtp = asyncHandler(async () => {
   });
 });
 
-exports.resendOtp =asyncHandler( async () => {
- 
-    const {email} = req.body ;
-    const user = await User.findOne({email});
+exports.resendOtp = asyncHandler(async () => {
 
-  if(Date.now() - user.otpSentLastTime < (2 * 60 * 100)){
-//  const time = Math.ceil((2*60*1000 - (Date.now() - user.otpSentLastTIme)) / 1000) ;
-//    return res.status(429).json({
-//     message : `You can only send otp after ${time} sec`
-  //  })
+  const { email } = req.body;
+  const user = await User.findOne({ email });
 
-  const retryTime = user.otpSentLastTime +  ( 2 * 60 * 1000) ;
-  return res.status(429).json({
-    message : "Wait before requesting another otp",
-    retryTime 
-  })
+  if (Date.now() - user.otpSentLastTime < (2 * 60 * 100)) {
+    //  const time = Math.ceil((2*60*1000 - (Date.now() - user.otpSentLastTIme)) / 1000) ;
+    //    return res.status(429).json({
+    //     message : `You can only send otp after ${time} sec`
+    //  })
+
+    const retryTime = user.otpSentLastTime + (2 * 60 * 1000);
+    return res.status(429).json({
+      message: "Wait before requesting another otp",
+      retryTime
+    })
 
   }
- //wait 60 sec before requesting another new otp;
+  //wait 60 sec before requesting another new otp;
 
- const OTP = Math.floor(100000 + Math.random() * 900000).toString();
+  const OTP = Math.floor(100000 + Math.random() * 900000).toString();
 
   user.otp2fa = OTP;
   user.otpExpires = Date.now() + 5 * 60 * 1000;
   user.otpSentLastTime = Date.now()
   await user.save();
 
-res.status(200).json({
-  message : "OTP SENT SUCCESSFULLY"
-})
- 
+  res.status(200).json({
+    message: "OTP SENT SUCCESSFULLY"
+  })
+
 });
 
 

@@ -15,8 +15,8 @@ export const Button = React.forwardRef(({
 
   const variants = {
     glass: 'glass hover:bg-white/10 dark:hover:bg-white/15 text-text-h border-white/20 dark:border-white/10 shadow-lg',
-    primary: 'glass bg-primary/20 hover:bg-primary/30 text-text-h border-primary/30 hover:border-primary/45 shadow-primary/5 shadow-md',
-    secondary: 'glass bg-secondary/20 hover:bg-secondary/30 text-text-h border-secondary/30 hover:border-secondary/45 shadow-secondary/5 shadow-md',
+    primary: 'bg-primary hover:bg-primary-hover text-white dark:text-neutral-dark border border-primary/10 shadow-lg shadow-primary/10 font-bold',
+    secondary: 'bg-secondary hover:bg-secondary-hover text-neutral-dark border border-secondary/10 shadow-lg shadow-secondary/10 font-bold',
     outline: 'bg-transparent border border-border text-text hover:glass hover:bg-white/5',
     ghost: 'bg-transparent text-text hover:glass hover:bg-white/5 border-transparent hover:border-white/10',
   };

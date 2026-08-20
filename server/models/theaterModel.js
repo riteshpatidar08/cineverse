@@ -3,23 +3,23 @@ const mongoose = require('mongoose');
 const theaterSchema = new mongoose.Schema({
   name: { type: String },
   city: { type: String }, //pvr cinema  //jaipur  //geojson ppoint polyogon
-location : {
-    type : {
-        type : String ,
-        required : true
+  location: {
+    type: {
+      type: String,
+      required: true,
     },
-    coordinates : {
-        type :  [Number] ,
-        required  :true
-    }
-},
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  },
   screens: [
     {
       screenName: { type: String },
       totalSeats: { type: Number },
       seatLayout: [
         {
-          row: { type: String }, 
+          row: { type: String },
           seatCategory: { type: String },
           seatPrice: { type: Number },
           seats: [{ type: String }],
@@ -29,7 +29,7 @@ location : {
   ],
 });
 
-const Theater = mongoose.model("Theater" , theaterSchema);
+const Theater = mongoose.model('Theater', theaterSchema);
 module.exports = Theater;
 // [
 //   {
@@ -46,5 +46,4 @@ module.exports = Theater;
 //   },
 // ];
 
-
-// theater - screen - seatLayout / used embedded data model because data is not going to grow unbounded . 
+// theater - screen - seatLayout / used embedded data model because data is not going to grow unbounded .
