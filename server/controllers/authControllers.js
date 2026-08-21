@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const generateToken = require('../utils/jwt.js');
 
 exports.register = async (req, res, next) => {
+  console.log(req.body)
   try {
     const { name, email, mobileNo, password } = req.body;
     console.log('register api is running.....')
@@ -25,12 +26,15 @@ exports.register = async (req, res, next) => {
       mobileNo,
       password: hash,
     });
+    res.status(201).json({
+      message :"user created"
+    })
   } catch (error) {
     next(error);
   }
 };
 
-exports.login = asyncHandler(async () => {
+exports.login = asyncHandler(async (req,res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
@@ -156,6 +160,22 @@ exports.resendOtp = asyncHandler(async () => {
 
 });
 
+exports.verify = asyncHandler(async(req,res)=>{
+  if(req.user){
+    return res.status(200).json({
+      isAuthenticated : true ,
+      name : req.user.name ,
+      id : req.user.id ,
+      role : req.user.role ,
+      email : req.user.email
+    })
+  }else {
+    return res.status(401).json({
+      isAuthenticated : false
+    })
+  }
 
+  
+})
 //expiry =>
 // time-limit = 3 min ek hi baar bhj skta hain 2 min k baad try krega 

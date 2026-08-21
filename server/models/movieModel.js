@@ -8,7 +8,7 @@ const movieSchema = new mongoose.Schema({
   censorRating: { type: String },
   releaseDate: { type: Date },
   // rating
-  isActive : {type : Bolean, default : true}
+  isActive : {type :Boolean, default : true}
 });
 
 const Movie = mongoose.model('Movie' , movieSchema) ;

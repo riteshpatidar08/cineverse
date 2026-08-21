@@ -1,7 +1,7 @@
 const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500
   let message = err.message;
-
+console.log(err)
   //NOTE how to handle errors with different names
   if (err.name === 'ValidationError') {
     statusCode = 400;
@@ -21,10 +21,10 @@ const errorHandler = (err, req, res, next) => {
     message: 'Record already exists';
   }
 
-  res.status(err.status).json({
+  res.status(err.statusCode).json({
     success: false,
     error: message,
-    statusCode: statusCode,
+ 
   });
 };
 

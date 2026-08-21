@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { login, verifyOtp, resendOtp } from '../services/auth.api.js';
+import { login, verifyOtp, resendOtp, verify } from '../services/auth.api.js';
 import { Card, CardContent, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Switch } from '../components/ui/Switch';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/Avatar';
 import { Badge } from '../components/ui/Badge';
+
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -34,17 +35,11 @@ function Login() {
 
     try {
       const res = await login(formData);
-      console.log('Login Response:', res.data);
-
-      if (res.data?.otpRequired) {
-        setOtpRequired(true);
-        setUserId(res.data.userId);
-        setSuccessMessage('Two-factor authentication code sent to your email.');
-      } else {
-        setSuccessMessage('Logged in successfully! Welcome back.');
-      }
+      const results = await verify()
+      let response = {...res.data , ...results.data};
+ console.log(response)
     } catch (error) {
-      console.error(error);
+      console.error(error);m
       setErrorMessage(
         error.response?.data?.message ||
           'Login failed. Please check your credentials.'

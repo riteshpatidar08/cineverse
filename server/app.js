@@ -7,7 +7,10 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes.js');
 const movieRoutes = require('./routes/movieRoutes.js')
 const errorHandler = require('./middlewares/errorHandler.js');
+const cookieParse =require('cookie-parser')
+
 const cors = require('cors')
+app.use(express.json())
 //NOTE sync the .env files variables in process.env
 app.use(cors(
   {origin : "http://localhost:5173" , 
@@ -19,7 +22,7 @@ dotenv.config();
 if (process.env.NODE_ENV === 'DEVELOPMENT') {
   app.use(morgan('tiny'));
 }
-
+app.use(cookieParse())
 //NOTE connection with database
 dbConnect();
 

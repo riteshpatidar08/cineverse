@@ -39,7 +39,7 @@ exports.createMovie = asyncHandler(async()=>{
     })
 
     res.status(201).json({success : true ,message : 'Movie successfully created', data : movie})
-}
+})
 
 //getMovieById //updateMovie , //deactive Movie (soft delete) // deleteMovie hard delete
 
