@@ -7,9 +7,10 @@ import { Input } from '../components/ui/Input';
 import { Switch } from '../components/ui/Switch';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/Avatar';
 import { Badge } from '../components/ui/Badge';
-
-
+import { authenticated } from '../../redux/slices/authSlice.js';
+import {useDispatch} from 'react-redux'
 function Login() {
+  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -35,11 +36,12 @@ function Login() {
 
     try {
       const res = await login(formData);
-      const results = await verify()
-      let response = {...res.data , ...results.data};
- console.log(response)
+      const results = await verify();
+      let response = { ...res.data, ...results.data };
+      console.log(response);
+      dispatch(authenticated(response))
     } catch (error) {
-      console.error(error);m
+      console.error(error);
       setErrorMessage(
         error.response?.data?.message ||
           'Login failed. Please check your credentials.'

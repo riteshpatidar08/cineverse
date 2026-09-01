@@ -5,7 +5,7 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
-
+import ProtectedRoutes from './components/ProtectedRoutes'
 function App() {
   
 
@@ -15,7 +15,13 @@ function App() {
    
       <main className="flex-grow w-full">
         <Routes>
+          <Route element={<ProtectedRoutes/>}>
           <Route path="/" element={<Home />} />
+
+          
+          </Route>
+
+
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
         </Routes>

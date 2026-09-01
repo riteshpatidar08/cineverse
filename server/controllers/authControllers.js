@@ -37,7 +37,7 @@ exports.register = async (req, res, next) => {
 exports.login = asyncHandler(async (req,res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-
+console.log(user)
   if (!user) {
     const error = new Error('Account is not registred');
     error.statusCode = 400;
@@ -162,12 +162,14 @@ exports.resendOtp = asyncHandler(async () => {
 
 exports.verify = asyncHandler(async(req,res)=>{
   if(req.user){
+    console.log(req.user)
     return res.status(200).json({
       isAuthenticated : true ,
       name : req.user.name ,
-      id : req.user.id ,
+    id : req.user.id ,
       role : req.user.role ,
       email : req.user.email
+
     })
   }else {
     return res.status(401).json({
