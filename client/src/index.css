@@ -8,41 +8,40 @@
      - Bright Orange: #ff9740 (RGB 255 151 64)
      - Golden Yellow: #ffbc47 (RGB 255 188 71)
      - Muted Lavender: #8e7fc4 (RGB 142 127 196)
-     - Midnight Navy: #0a0c20 (RGB 10 12 32)
   */
 
-  /* CSS Variables for standard/utility use */
-  --bg: #faf9fd; /* Very soft lavender off-white */
+  /* CSS Variables - Pure Light Theme */
+  --bg: #ffffff; /* Pure crisp white background */
   --text: #4a3e56; /* Muted deep purple-gray */
   --text-h: #230d56; /* Logo Deepest Purple for high contrast headings */
   --border: #e5e0f2; /* Soft lavender-gray border */
   --code-bg: #f2eefa;
   
-  /* Raw RGB values to allow Tailwind opacity modifiers (e.g., bg-primary/20) */
+  /* Raw RGB values for Tailwind opacity modifiers (e.g., bg-primary/20) */
   --rgb-primary: 71 27 142;        /* #471b8e - Deep Purple */
   --rgb-primary-hover: 53 19 113;  /* #351371 - Darker Purple */
   --rgb-secondary: 255 151 64;     /* #ff9740 - Bright Orange */
   --rgb-secondary-hover: 255 188 71; /* #ffbc47 - Golden Yellow */
   --rgb-accent: 142 127 196;       /* #8e7fc4 - Lavender */
-  --rgb-neutral-dark: 10 12 32;    /* #0a0c20 - Midnight Navy */
+  --rgb-neutral-dark: 35 13 86;    /* #230d56 - Deepest Purple */
 
   /* Legacy & utility mappings */
   --accent: #471b8e;
   --accent-bg: rgba(71, 27, 142, 0.08);
   --accent-border: rgba(71, 27, 142, 0.3);
   --social-bg: rgba(242, 238, 250, 0.6);
-  --shadow: rgba(71, 27, 142, 0.06) 0 10px 15px -3px, rgba(71, 27, 142, 0.03) 0 4px 6px -2px;
+  --shadow: rgba(71, 27, 142, 0.08) 0 10px 15px -3px, rgba(71, 27, 142, 0.04) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
-  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.45) 100%);
-  --glass-border: rgba(71, 27, 142, 0.08);
-  --glass-shadow: 0 8px 32px 0 rgba(71, 27, 142, 0.04);
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.65) 100%);
+  --glass-border: rgba(71, 27, 142, 0.12);
+  --glass-shadow: 0 8px 32px 0 rgba(71, 27, 142, 0.06);
 
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -55,61 +54,54 @@
   }
 }
 
-/* Dark theme setup - supports both media queries and class-based dark mode */
+/* Enforce Light Theme globally across system dark mode & .dark class */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000; /* Black from logo */
-    --text: #b0a7c4; /* Soft lavender-gray */
-    --text-h: #ffffff; /* Crisp white for headings */
-    --border: #231c44; /* Dark purple border */
-    --code-bg: #14122e;
+    --bg: #ffffff;
+    --text: #4a3e56;
+    --text-h: #230d56;
+    --border: #e5e0f2;
+    --code-bg: #f2eefa;
     
-    /* Swap primary/accent in dark mode for readability and contrast */
-    --rgb-primary: 142 127 196;       /* #8e7fc4 - Lavender */
-    --rgb-primary-hover: 255 255 255;
-    --rgb-secondary: 255 188 71;      /* #ffbc47 - Golden Yellow */
-    --rgb-secondary-hover: 255 151 64; /* #ff9740 - Bright Orange */
-    --rgb-accent: 255 151 64;         /* #ff9740 - Bright Orange */
+    --rgb-primary: 71 27 142;
+    --rgb-primary-hover: 53 19 113;
+    --rgb-secondary: 255 151 64;
+    --rgb-secondary-hover: 255 188 71;
+    --rgb-accent: 142 127 196;
+    --rgb-neutral-dark: 35 13 86;
     
-    --accent: #ffbc47;
-    --accent-bg: rgba(255, 188, 71, 0.1);
-    --accent-border: rgba(255, 188, 71, 0.4);
-    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --accent: #471b8e;
+    --accent-bg: rgba(71, 27, 142, 0.08);
+    --accent-border: rgba(71, 27, 142, 0.3);
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.65) 100%);
+    --glass-border: rgba(71, 27, 142, 0.12);
+    --glass-shadow: 0 8px 32px 0 rgba(71, 27, 142, 0.06);
   }
 }
 
-/* Class-based Dark Mode support (.dark) */
 .dark {
-  --bg: #000000; /* Black from logo */
-  --text: #b0a7c4;
-  --text-h: #ffffff;
-  --border: #231c44;
-  --code-bg: #14122e;
+  --bg: #ffffff;
+  --text: #4a3e56;
+  --text-h: #230d56;
+  --border: #e5e0f2;
+  --code-bg: #f2eefa;
   
-  --rgb-primary: 142 127 196;
-  --rgb-primary-hover: 255 255 255;
-  --rgb-secondary: 255 188 71;
-  --rgb-secondary-hover: 255 151 64;
-  --rgb-accent: 255 151 64;
+  --rgb-primary: 71 27 142;
+  --rgb-primary-hover: 53 19 113;
+  --rgb-secondary: 255 151 64;
+  --rgb-secondary-hover: 255 188 71;
+  --rgb-accent: 142 127 196;
+  --rgb-neutral-dark: 35 13 86;
   
-  --accent: #ffbc47;
-  --accent-bg: rgba(255, 188, 71, 0.1);
-  --accent-border: rgba(255, 188, 71, 0.4);
-  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
-}
-.dark #social .button-icon {
-  filter: invert(1) brightness(2);
+  --accent: #471b8e;
+  --accent-bg: rgba(71, 27, 142, 0.08);
+  --accent-border: rgba(71, 27, 142, 0.3);
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.65) 100%);
+  --glass-border: rgba(71, 27, 142, 0.12);
+  --glass-shadow: 0 8px 32px 0 rgba(71, 27, 142, 0.06);
 }
 
-/* Tailwind CSS v4 @theme directive mapping (if Tailwind v4 is in use) */
+/* Tailwind CSS v4 @theme directive mapping */
 @theme {
   --color-primary: rgb(var(--rgb-primary));
   --color-primary-hover: rgb(var(--rgb-primary-hover));
@@ -130,17 +122,11 @@
 
 body {
   margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 #root {
-  /* width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column; */
   box-sizing: border-box;
 }
 
@@ -213,4 +199,3 @@ code {
 @utility animate-float-medium {
   animation: float-medium 8s ease-in-out infinite;
 }
-

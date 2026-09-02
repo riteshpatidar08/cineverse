@@ -7,3 +7,4 @@ const router = express.Router() ;
 router.get('/movies' , getAllMovies)
 
 module.exports = router ;
+
