@@ -16,7 +16,7 @@ export default function MovieGrid({  loading = false }) {
     );
   }
 
-  if (movies.length === 0) {
+  if (movies?.length === 0) {
     return (
       <div className="text-center py-16 glass rounded-3xl p-8 border border-white/10">
         <h3 className="text-xl font-bold text-text-h mb-2">No movies available</h3>
@@ -27,7 +27,7 @@ export default function MovieGrid({  loading = false }) {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 md:gap-6">
-      {movies.map((movie) => (
+      {movies?.map((movie) => (
         <MovieCard key={movie._id || movie.title} movie={movie} />
       ))}
     </div>

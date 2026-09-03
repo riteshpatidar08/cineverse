@@ -37,7 +37,7 @@ export default function Navbar() {
           <AvatarFallback className="font-bold bg-primary/20 text-primary text-xs">CV</AvatarFallback>
         </Avatar>
         <span className="text-lg font-bold tracking-wider text-text-h">
-          cineVerse
+          Cineverse
         </span>
       </Link>
 

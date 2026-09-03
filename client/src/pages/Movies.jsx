@@ -3,13 +3,13 @@ import { fetchMovies } from '../services/movie.api';
 import MovieHeroCarousel from '../components/movies/MovieHeroCarousel';
 import MovieGrid from '../components/movies/MovieGrid';
 import { useDispatch  , useSelector} from 'react-redux';
-import { storeMovies } from '../../redux/slices/moviesSlice';
+import { fetchAllMovies, storeMovies } from '../../redux/slices/moviesSlice';
 
 export default function Movies() {
-    const {movies} = useSelector((state)=>state.movies)
+    const {movies , loading} = useSelector((state)=>state.movies)
     console.log(movies)
   // const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
+
 const dispatch  = useDispatch()
   // Featured Carousel State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -85,30 +85,11 @@ const dispatch  = useDispatch()
 
   // Fetch movies from /api/v1/movies
   useEffect(() => {
-    const loadMovies = async () => {
-      setLoading(true);
-      try {
-        const response = await fetchMovies();
-        const apiData = response.data?.data || response.data || [];
-        if (Array.isArray(apiData) && apiData.length > 0) {
-          // setMovies(apiData);
-          dispatch(storeMovies(apiData))
-        } else {
-          // setMovies(fallbackMovies);
-          // dispatch(storeMovies(fallbackMovies))
-        }
-      } catch (err) {
-        console.warn('API error, using fallback seed movies:', err);
-    
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadMovies();
+ dispatch(fetchAllMovies())
   }, [dispatch]);
 
   // Carousel Movies (First 4 movies or all movies)
-  const featuredMovies = [];
+  const featuredMovies =[]
 
   // Carousel Auto-Play Timer
   useEffect(() => {
