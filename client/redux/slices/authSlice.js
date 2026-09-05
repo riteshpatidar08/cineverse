@@ -6,7 +6,7 @@ name : '' ,
 id : '' ,
 email : "",
 role : "" ,
-isAuthenticated : null
+isAuthenticated :  Cookies.get('isAuthenticated') || null
 }
 
 //NOTE configure the slice

@@ -3,94 +3,95 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
-
+import { useSelector } from 'react-redux';
 export default function FeaturedSpotlight() {
+  const {movies , loading} = useSelector((state)=>state.movies)
   const [activeCategory, setActiveCategory] = useState('Now Showing');
-
+const spotlightMovies = movies ;
   const categories = ['Now Showing', 'Coming Soon', 'IMAX 4K', 'Top Rated'];
 
-  const spotlightMovies = [
-    {
-      id: '1',
-      title: 'Toxic: A Fairy Tale for Grown-ups',
-      category: 'Now Showing',
-      poster: 'https://cdn.district.in/movies-assets/images/cinema/toxiv%3Dc-8340c900-9c6f-11f1-97d4-73a32236137e.jpg',
-      rating: '4.9',
-      reviews: '12.4k',
-      duration: '2h 34m',
-      genres: ['Action', 'Drama'],
-      censor: 'A',
-      price: '$14.99',
-      tag: 'Blockbuster',
-    },
-    {
-      id: '2',
-      title: 'Hanuman Ansh',
-      category: 'Top Rated',
-      poster: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800',
-      rating: '4.8',
-      reviews: '18.9k',
-      duration: '2h 15m',
-      genres: ['Biography', 'Devotional', 'Drama'],
-      censor: 'U',
-      price: '$12.99',
-      tag: 'Trending #1',
-    },
-    {
-      id: '3',
-      title: 'Spider-Man: Brand New Day',
-      category: 'IMAX 4K',
-      poster: 'https://cdn.district.in/movies-assets/images/cinema/image-(29)-598ac6b0-6a24-11f1-8579-1756095b1930.jpg',
-      rating: '4.9',
-      reviews: '24.1k',
-      duration: '2h 22m',
-      genres: ['Action', 'Sci-Fi'],
-      censor: 'UA13+',
-      price: '$16.99',
-      tag: 'IMAX 3D',
-    },
-    {
-      id: '4',
-      title: 'Insidious: Out of the Further',
-      category: 'Now Showing',
-      poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=800',
-      rating: '4.6',
-      reviews: '8.5k',
-      duration: '1h 58m',
-      genres: ['Horror', 'Thriller'],
-      censor: 'A',
-      price: '$13.50',
-      tag: 'Midnight Special',
-    },
-    {
-      id: '5',
-      title: 'Mirzapur: The Movie',
-      category: 'Top Rated',
-      poster: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&q=80&w=800',
-      rating: '4.7',
-      reviews: '15.3k',
-      duration: '2h 40m',
-      genres: ['Action', 'Crime'],
-      censor: 'A',
-      price: '$14.00',
-      tag: 'High Demand',
-    },
-    {
-      id: '6',
-      title: 'Awarapan 2',
-      category: 'Coming Soon',
-      poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800',
-      rating: '4.9',
-      reviews: 'Pre-Orders',
-      duration: '2h 18m',
-      genres: ['Action', 'Romance'],
-      censor: 'UA16+',
-      price: '$15.00',
-      tag: 'Releasing Sep 12',
-    },
-  ];
+  // const spotlightMovies = [
+  //   {
+  //     id: '1',
+  //     title: 'Toxic: A Fairy Tale for Grown-ups',
+  //     category: 'Now Showing',
+  //     poster: 'https://cdn.district.in/movies-assets/images/cinema/toxiv%3Dc-8340c900-9c6f-11f1-97d4-73a32236137e.jpg',
+  //     rating: '4.9',
+  //     reviews: '12.4k',
+  //     duration: '2h 34m',
+  //     genres: ['Action', 'Drama'],
+  //     censor: 'A',
+  //     price: '$14.99',
+  //     tag: 'Blockbuster',
+  //   },
+  //   {
+  //     id: '2',
+  //     title: 'Hanuman Ansh',
+  //     category: 'Top Rated',
+  //     poster: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800',
+  //     rating: '4.8',
+  //     reviews: '18.9k',
+  //     duration: '2h 15m',
+  //     genres: ['Biography', 'Devotional', 'Drama'],
+  //     censor: 'U',
+  //     price: '$12.99',
+  //     tag: 'Trending #1',
+  //   },
+  //   {
+  //     id: '3',
+  //     title: 'Spider-Man: Brand New Day',
+  //     category: 'IMAX 4K',
+  //     poster: 'https://cdn.district.in/movies-assets/images/cinema/image-(29)-598ac6b0-6a24-11f1-8579-1756095b1930.jpg',
+  //     rating: '4.9',
+  //     reviews: '24.1k',
+  //     duration: '2h 22m',
+  //     genres: ['Action', 'Sci-Fi'],
+  //     censor: 'UA13+',
+  //     price: '$16.99',
+  //     tag: 'IMAX 3D',
+  //   },
+  //   {
+  //     id: '4',
+  //     title: 'Insidious: Out of the Further',
+  //     category: 'Now Showing',
+  //     poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=800',
+  //     rating: '4.6',
+  //     reviews: '8.5k',
+  //     duration: '1h 58m',
+  //     genres: ['Horror', 'Thriller'],
+  //     censor: 'A',
+  //     price: '$13.50',
+  //     tag: 'Midnight Special',
+  //   },
+  //   {
+  //     id: '5',
+  //     title: 'Mirzapur: The Movie',
+  //     category: 'Top Rated',
+  //     poster: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&q=80&w=800',
+  //     rating: '4.7',
+  //     reviews: '15.3k',
+  //     duration: '2h 40m',
+  //     genres: ['Action', 'Crime'],
+  //     censor: 'A',
+  //     price: '$14.00',
+  //     tag: 'High Demand',
+  //   },
+  //   {
+  //     id: '6',
+  //     title: 'Awarapan 2',
+  //     category: 'Coming Soon',
+  //     poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800',
+  //     rating: '4.9',
+  //     reviews: 'Pre-Orders',
+  //     duration: '2h 18m',
+  //     genres: ['Action', 'Romance'],
+  //     censor: 'UA16+',
+  //     price: '$15.00',
+  //     tag: 'Releasing Sep 12',
+  //   },
+  // ];
 
-  const filteredMovies = spotlightMovies.filter((movie) => {
+  const filteredMovies = spotlightMovies?.filter((movie) => {
     if (activeCategory === 'Now Showing') return true;
     return movie.category === activeCategory;
   });
@@ -133,7 +134,7 @@ export default function FeaturedSpotlight() {
 
         {/* Movies Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {filteredMovies.map((movie) => (
+          {filteredMovies?.map((movie) => (
             <Card
               key={movie.id}
               className="group border border-white/20 dark:border-white/10 hover:border-primary/40 hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-2xl flex flex-col justify-between"
@@ -156,7 +157,7 @@ export default function FeaturedSpotlight() {
                       {movie.tag}
                     </Badge>
                     <span className="glass px-2.5 py-1 rounded-full text-[10px] font-bold text-white border border-white/20">
-                      {movie.censor}
+                      {movie.censorRating}
                     </span>
                   </div>
 
@@ -199,7 +200,7 @@ export default function FeaturedSpotlight() {
               </div>
 
               {/* Bottom Price & Booking CTA */}
-              <div className="pt-3 border-t border-border/50 flex items-center justify-between">
+              {/* <div className="pt-3 border-t border-border/50 flex items-center justify-between">
                 <div>
                   <div className="text-[10px] font-bold text-text/50 uppercase">Starting From</div>
                   <div className="text-base font-extrabold text-text-h">{movie.price}</div>
@@ -209,7 +210,7 @@ export default function FeaturedSpotlight() {
                     <span>Reserve →</span>
                   </Button>
                 </Link>
-              </div>
+              </div> */}
             </Card>
           ))}
         </div>

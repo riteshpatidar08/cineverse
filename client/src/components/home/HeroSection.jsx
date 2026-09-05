@@ -113,8 +113,8 @@ export default function HeroSection() {
                       IMAX 3D
                     </span>
                   </div>
-
-                  {/* Bottom Movie Detail Overlay */}
+                  {/* Bottom Movie Detail Overlay */} 
+                  {/* do it from backend */}
                   <div className="absolute bottom-3 left-3 right-3 p-4 rounded-xl bg-neutral-dark/95 border border-white/20 backdrop-blur-xl text-white shadow-2xl z-10">
                     <div className="flex items-center justify-between gap-2">
                       <div>

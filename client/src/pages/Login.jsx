@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState , useEffect } from 'react';
+import { Link , useNavigate } from 'react-router-dom';
 import { login, verifyOtp, resendOtp, verify } from '../services/auth.api.js';
 import { Card, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -8,9 +8,10 @@ import { Switch } from '../components/ui/Switch';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/Avatar';
 import { authenticated } from '../../redux/slices/authSlice.js';
 import { useDispatch } from 'react-redux';
-
+import {useSelector} from 'react-redux'
 function Login() {
   const dispatch = useDispatch();
+  const {isAuthenticated} = useSelector((state)=>state.auth)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,10 +24,16 @@ function Login() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
-
+const navigate = useNavigate()
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  useEffect(()=>{
+
+if(isAuthenticated){
+  navigate('/')
+}
+  },[isAuthenticated])
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
