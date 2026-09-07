@@ -8,6 +8,7 @@ const movieSchema = new mongoose.Schema({
   censorRating: { type: String },
   releaseDate: { type: Date },
   // rating
+  
   isActive : {type :Boolean, default : true}
 });
 
@@ -17,3 +18,5 @@ module.exports = Movie;
 
 
 
+// data modelling  embedding and referencing 
+//denormalization and normalization

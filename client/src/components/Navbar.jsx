@@ -4,12 +4,13 @@ import { Button } from './ui/Button';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/Avatar';
 import { useSelector, useDispatch } from 'react-redux';
 import { authenticated } from '../../redux/slices/authSlice';
+import { getCityAndState } from '../../redux/slices/locationSlice';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
 export default function Navbar() {
-  const [currentLoc, setCurrentLoc] = useState('');
-  const [currentState, setCurrentState] = useState('');
+  // const [currentLoc, setCurrentLoc] = useState('');
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const location = useLocation();
@@ -17,7 +18,8 @@ export default function Navbar() {
   const dispatch = useDispatch();
 
   const { isAuthenticated, name, email, role } = useSelector((state) => state.auth);
-
+  const { currentCity , currentState } = useSelector((state) => state.location);
+console.log(currentCity , currentState)
   async function getDistrict(lat, lon) {
     const res = await axios.get(
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
@@ -30,9 +32,9 @@ export default function Navbar() {
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
       const { latitude, longitude } = position.coords;
+      console.log(latitude  , longitude)
       getDistrict(latitude, longitude).then(({ city, state }) => {
-        setCurrentLoc(city);
-        setCurrentState(state);
+       dispatch(getCityAndState({city , state}))
       });
     });
   }, []);
@@ -108,7 +110,7 @@ export default function Navbar() {
         </Link>
 
         {/* Divider + Location */}
-        {currentLoc && (
+        {currentCity && (
           <>
             <div className="h-8 w-px bg-white/20 dark:bg-white/10" />
             <div className="hidden md:flex items-center gap-1.5">
@@ -117,9 +119,9 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <div className="flex flex-col leading-tight">
-                <span className="text-sm font-bold text-text-h">{currentLoc}</span>
+                <span className="text-sm font-bold text-text-h">{currentCity}</span>
                 {currentState && (
-                  <span className="text-xs text-primary/80">{currentLoc}, {currentState}</span>
+                  <span className="text-xs text-primary/80">{currentCity}, {currentState}</span>
                 )}
               </div>
             </div>

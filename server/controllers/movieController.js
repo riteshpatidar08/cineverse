@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Movie = require('../models/movieModel.js');
-
+const Theater  = require('../models/theaterModel.js')
 // @desc get all movies 
 //@route GET  /api/v1/movies
 exports.getAllMovies = asyncHandler(async (req, res) => {
@@ -35,4 +35,33 @@ exports.createMovie = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, message: 'Movie successfully created', data: movie });
 });
 
+
+exports.nowPlaying = asyncHandler(async(req,res)=>{
+  const {lat , lon , radius , date ,page=1 , limit=10} = req.query ;
+
+console.log(radius)
+  if(!lat || !lon){
+throw new Error('Latitude and longitude required')
+  }
+//number chaiye aaginge string m data ata hain ;
+
+const latitude = Number(lat);
+const longitude = Number(lon);
+console.log(typeof latitude , latitude)
+console.log(typeof longitude , longitude)
+const theatres = await Theater.find({
+  location : {
+    $near : {
+      $geometry : {
+        type : "Point" , 
+        coordinates : [longitude , latitude] } ,
+        $maxDistance : Number(radius)
+      }
+    }
+  
+})
+
+console.log(theatres)
+
+})
  

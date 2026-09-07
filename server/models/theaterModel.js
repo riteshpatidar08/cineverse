@@ -29,6 +29,7 @@ const theaterSchema = new mongoose.Schema({
   ],
 });
 
+theaterSchema.index({location : "2dsphere"});
 const Theater = mongoose.model('Theater', theaterSchema);
 module.exports = Theater;
 // [

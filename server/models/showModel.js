@@ -12,6 +12,7 @@ const showSchema = new mongoose.Schema({
   },
   theaterName: { type: String },
   screen: {
+    
     type: String, //embedded in the theatre
   },
   startTime: {
@@ -32,3 +33,7 @@ const showSchema = new mongoose.Schema({
 
 // 10:45  2   5 
 // // moviesName ; Spider duration   // id / id /id
+
+user => address embedd bounded data 10 16moveBy
+
+product => review => emebeed 

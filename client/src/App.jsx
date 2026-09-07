@@ -10,6 +10,7 @@ import ProtectedRoutes from './components/ProtectedRoutes';
 import OpenRoutes from './components/OpenRoutes';
 
 function App() {
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
