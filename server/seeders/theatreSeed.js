@@ -8,8 +8,8 @@ const {
 } = require("../utils/generateSeats");
 
 const MONGO_URI =
-  process.env.MONGO_URI ||
-  'mongodb+srv://riteshpatidar088:UHE0MNXcbIXxzukJ@cluster0.b2vgi2d.mongodb.net/CineVerse?appName=Cluster0'
+  process.env.MONGO_URI 
+ 
 
 
 // -----------------------------------------------------

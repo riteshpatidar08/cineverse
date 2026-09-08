@@ -1,39 +1,29 @@
 const mongoose = require('mongoose');
 
 const showSchema = new mongoose.Schema({
-  movieId: {
+  movie: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Movie',
+    required: true,
   },
-  movieName: { type: String }, //denormalized for faster operator
-  theaterId: {
+  theater: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Theater',
+    required: true,
   },
-  theaterName: { type: String },
-  screen: {
-    
-    type: String, //embedded in the theatre
-  },
-  startTime: {
-    type: Date,
-  },
-  endTime: {
-    type: Date,
-  },
-  bookedSeats: [{ type: String }], //
-  priceByClass: [{ type: String }], //
-  availableCount: { type: Number },
-  language: { type: String },
-  format: { type: String },
-  isActive: { type: Boolean, default: true },
+  screenName: { type: String },
+  showDate: { type: Date },
+  startTime: { type: Date },
+  seatStatus: [
+    {
+      seatRow: { type: String },
+      seatNumber: { type: String },
+      seatPrice : {type :Number},
+      seatCategory: { type: String },
+      isBooked: { type: Boolean },
+    },
+  ],
 });
 
-
-
-// 10:45  2   5 
-// // moviesName ; Spider duration   // id / id /id
-
-user => address embedd bounded data 10 16moveBy
-
-product => review => emebeed 
+const Show = mongoose.model('Show' , showSchema) ;
+module.exports = Show;
