@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Show = require("../models/showModel");
 const Movie = require("../models/movieModel");
-const Theater = require("../models/theatreModel");
+const Theater = require("../models/theaterModel");
 
 const MONGO_URI =
   process.env.MONGO_URI 

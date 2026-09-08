@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Movie = require('../models/movieModel.js');
-const Theater = require('../models/theatreModel.js');
+const Theater = require('../models/theaterModel.js');
 const Show = require('../models/showModel.js');
 // @desc get all movies
 //@route GET  /api/v1/movies
