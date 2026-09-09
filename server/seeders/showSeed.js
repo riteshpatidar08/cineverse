@@ -5,12 +5,15 @@ const Movie = require("../models/movieModel");
 const Theater = require("../models/theaterModel");
 
 const MONGO_URI =
-  process.env.MONGO_URI 
+  process.env.MONGO_URI ||
+
 
 // -----------------------------------------------------
 // CONFIGURATION
 // -----------------------------------------------------
-const DAYS_TO_SEED = 7;
+
+// Only generate shows for the next 2 days
+const DAYS_TO_SEED = 2;
 
 const SHOW_TIMES = [
   "09:30",
@@ -35,7 +38,7 @@ function createDateTime(date, time) {
 }
 
 // -----------------------------------------------------
-// GENERATE SEATS FOR A SHOW
+// GENERATE SEATS
 // -----------------------------------------------------
 
 function generateSeatStatus(screen) {
@@ -74,13 +77,10 @@ function generateShows(movies, theaters) {
   const shows = [];
 
   const today = new Date();
-
   today.setHours(0, 0, 0, 0);
 
   theaters.forEach((theater) => {
-    console.log(
-      `Processing theater: ${theater.name}`
-    );
+    console.log(`Processing theater: ${theater.name}`);
 
     if (!theater.screens || theater.screens.length === 0) {
       console.log(
@@ -91,17 +91,13 @@ function generateShows(movies, theaters) {
     }
 
     theater.screens.forEach((screen) => {
-      console.log(
-        `  Processing ${screen.screenName}`
-      );
+      console.log(`  Processing ${screen.screenName}`);
 
       movies.forEach((movie) => {
         for (let day = 0; day < DAYS_TO_SEED; day++) {
           const showDate = new Date(today);
 
-          showDate.setDate(
-            today.getDate() + day
-          );
+          showDate.setDate(today.getDate() + day);
 
           SHOW_TIMES.forEach((time) => {
             const startTime = createDateTime(
@@ -109,16 +105,19 @@ function generateShows(movies, theaters) {
               time
             );
 
-            const seatStatus =
-              generateSeatStatus(screen);
-
             shows.push({
               movie: movie._id,
               theater: theater._id,
               screenName: screen.screenName,
-              showDate,
+
+              // Calendar date of the show
+              showDate: new Date(showDate),
+
+              // Exact date + time
               startTime,
-              seatStatus,
+
+              // Fresh seat status for every show
+              seatStatus: generateSeatStatus(screen),
             });
           });
         }
@@ -155,18 +154,11 @@ async function seedShows() {
 
     const movies = await Movie.find({});
 
-    console.log(
-      `Movies found: ${movies.length}`
-    );
+    console.log(`Movies found: ${movies.length}`);
 
     if (movies.length === 0) {
-      console.log(
-        "ERROR: No movies found in database."
-      );
-
-      console.log(
-        "Run your movie seeder first."
-      );
+      console.log("ERROR: No movies found in database.");
+      console.log("Run your movie seeder first.");
 
       return;
     }
@@ -177,18 +169,11 @@ async function seedShows() {
 
     const theaters = await Theater.find({});
 
-    console.log(
-      `Theaters found: ${theaters.length}`
-    );
+    console.log(`Theaters found: ${theaters.length}`);
 
     if (theaters.length === 0) {
-      console.log(
-        "ERROR: No theaters found in database."
-      );
-
-      console.log(
-        "Run your theater seeder first."
-      );
+      console.log("ERROR: No theaters found in database.");
+      console.log("Run your theater seeder first.");
 
       return;
     }
@@ -211,9 +196,7 @@ async function seedShows() {
       );
     });
 
-    console.log(
-      `\nTotal screens: ${totalScreens}`
-    );
+    console.log(`\nTotal screens: ${totalScreens}`);
 
     if (totalScreens === 0) {
       console.log(
@@ -229,8 +212,7 @@ async function seedShows() {
 
     console.log("\nDeleting old shows...");
 
-    const deleted =
-      await Show.deleteMany({});
+    const deleted = await Show.deleteMany({});
 
     console.log(
       `Deleted ${deleted.deletedCount} old shows`
@@ -240,7 +222,9 @@ async function seedShows() {
     // GENERATE
     // -------------------------------------------------
 
-    console.log("\nGenerating shows...");
+    console.log(
+      `\nGenerating shows for ${DAYS_TO_SEED} days...`
+    );
 
     const shows = generateShows(
       movies,
@@ -256,20 +240,16 @@ async function seedShows() {
     // -------------------------------------------------
 
     if (shows.length === 0) {
-      console.log(
-        "ERROR: Generated 0 shows."
-      );
+      console.log("ERROR: Generated 0 shows.");
 
       return;
     }
 
     // -------------------------------------------------
-    // CHECK FIRST SHOW
+    // SHOW SUMMARY ONLY
     // -------------------------------------------------
 
-    console.log(
-      "\nFirst generated show:"
-    );
+    console.log("\nFirst generated show:");
 
     console.log(
       JSON.stringify(
@@ -283,13 +263,15 @@ async function seedShows() {
     // INSERT
     // -------------------------------------------------
 
-    console.log("\nInserting shows...");
-console.log(shows)
+    console.log(
+      `\nInserting ${shows.length} shows...`
+    );
+
     const inserted =
       await Show.insertMany(shows);
 
     console.log(
-      `\nSUCCESS: Inserted ${inserted.length} shows`
+      `SUCCESS: Inserted ${inserted.length} shows`
     );
 
     // -------------------------------------------------
@@ -316,6 +298,7 @@ console.log(shows)
     console.log(
       "SHOW SEEDER FINISHED SUCCESSFULLY"
     );
+
   } catch (error) {
     console.error(
       "\n=============================="
