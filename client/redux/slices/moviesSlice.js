@@ -1,9 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchMovies } from '../../src/services/movie.api';
+import {
+  fetchMovies,
+  nearBy,
+  nowPlayingMovies,
+} from '../../src/services/movie.api';
 const initialState = {
   movies: null,
   loading: false,
-  error : null
+  error: null,
 };
 
 export const fetchAllMovies = createAsyncThunk(
@@ -11,6 +15,36 @@ export const fetchAllMovies = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetchMovies();
+      const apiData = response.data?.data || response.data || [];
+      if (Array.isArray(apiData) && apiData.length > 0) {
+        return apiData;
+      }
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const nowPlaying = createAsyncThunk(
+  'movies/now-playing',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await nowPlayingMovies(data);
+      const apiData = response.data?.data || response.data || [];
+      if (Array.isArray(apiData) && apiData.length > 0) {
+        return apiData;
+      }
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const nearByMovies = createAsyncThunk(
+  'movies/near-by',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await nearBy(data);
       const apiData = response.data?.data || response.data || [];
       if (Array.isArray(apiData) && apiData.length > 0) {
         return apiData;
@@ -35,13 +69,14 @@ const movieSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchAllMovies.fulfilled, (state, action) => {
-        console.log(action.payload)
+        console.log(action.payload);
         state.movies = action.payload;
         state.loading = false;
-      }).addCase(fetchAllMovies.rejected , (state,action)=>{
-        state.loading = false ;
-        state.error = action.payload
       })
+      .addCase(fetchAllMovies.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 export default movieSlice.reducer;

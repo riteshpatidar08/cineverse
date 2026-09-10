@@ -27,3 +27,12 @@ const showSchema = new mongoose.Schema({
 
 const Show = mongoose.model('Show' , showSchema) ;
 module.exports = Show;
+
+
+
+
+// [{'name' : "ritesh" , course : "cse"} , {name : "ayushman" , course :"me" , }, {name : devendra , course : cse}]
+
+// User.distinc('course');
+
+// ['cse' , 'me']

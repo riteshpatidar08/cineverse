@@ -7,3 +7,12 @@ export const fetchMovies = (params = {}) => {
 export const fetchMovieById = (id) => {
   return api.get(`/movies/${id}`);
 };
+
+
+export const nowPlayingMovies  = (data) => {
+  return api.get(`movies/now-playing` , data)
+}
+
+export const nearBy = (data) => {
+  return api.get(`movies/nearby` , data)
+}

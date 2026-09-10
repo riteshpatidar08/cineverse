@@ -20,3 +20,6 @@ module.exports = Movie;
 
 // data modelling  embedding and referencing 
 //denormalization and normalization
+
+
+//NOTE client load => homepage => latitude , longitudee
