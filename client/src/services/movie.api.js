@@ -14,5 +14,10 @@ export const nowPlayingMovies  = (data) => {
 }
 
 export const nearBy = (data) => {
-  return api.get(`movies/nearby` , data)
+  const {latitude , longitude} = data
+  return api.get(`movies/nearby?lat=${latitude}&lon=${longitude}` , data)
+}
+
+export const getMovieById = (id) => {
+  return api.get(`movies/${id}`)
 }

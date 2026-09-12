@@ -34,9 +34,13 @@ console.log(currentCity , currentState)
       const { latitude, longitude } = position.coords;
       console.log(latitude  , longitude)
       getDistrict(latitude, longitude).then(({ city, state }) => {
-       dispatch(getCityAndState({city , state}))
+       dispatch(getCityAndState({city , state , latitude , longitude}))
       });
-    });
+    }),    {
+      enableHighAccuracy: false, 
+      timeout: 5000,
+      maximumAge: 600000
+  } 
   }, []);
 
   // Close dropdown when clicking outside

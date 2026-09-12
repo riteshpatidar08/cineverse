@@ -1,4 +1,4 @@
-import React from 'react';
+import React , {useEffect} from 'react';
 import HeroSection from '../components/home/HeroSection';
 import FeaturedSpotlight from '../components/home/FeaturedSpotlight';
 import ValueProposition from '../components/home/ValueProposition';
@@ -7,8 +7,14 @@ import PartnerSection from '../components/home/PartnerSection';
 import TestimonialsSection from '../components/home/TestimonialsSection';
 import FaqSection from '../components/home/FaqSection';
 import CtaNewsletterSection from '../components/home/CtaNewsletterSection';
-
+import { nearByMovies } from '../../redux/slices/moviesSlice';
+import {useDispatch , useSelector } from 'react-redux'
 export default function Home() {
+  const dispatch = useDispatch() ;
+  const {latitude , longitude } = useSelector((state)=>state.location);
+  useEffect(()=>{
+dispatch(nearByMovies({latitude, longitude}))
+  })
   return (
     <div className="min-h-screen bg-[var(--bg)] text-text transition-colors duration-300 overflow-hidden">
       {/* 1. Hero & Ticket Search Section */}

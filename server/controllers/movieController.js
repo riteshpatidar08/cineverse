@@ -340,9 +340,19 @@ exports.fetchMovieByCity = asyncHandler(async (req, res) => {
   console.log('MOVIES........', movies);
   res.status(200).json({
     data: movies,
-
   });
 });
 
-
 ////fetcbMovieByid
+
+exports.getMovieById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const movie = await Movie.findById(id);
+
+  res.status(200).json({
+    success: true,
+
+    data: movie,
+  });
+});

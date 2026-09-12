@@ -5,9 +5,10 @@ import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { useSelector } from 'react-redux';
 export default function FeaturedSpotlight() {
-  const {movies , loading} = useSelector((state)=>state.movies)
+  const {moviesByCity , loading} = useSelector((state)=>state.movies)
+ 
   const [activeCategory, setActiveCategory] = useState('Now Showing');
-const spotlightMovies = movies ;
+const spotlightMovies = moviesByCity ;
   const categories = ['Now Showing', 'Coming Soon', 'IMAX 4K', 'Top Rated'];
 
   // const spotlightMovies = [
@@ -134,12 +135,15 @@ const spotlightMovies = movies ;
 
         {/* Movies Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {filteredMovies?.map((movie) => (
+          {filteredMovies?.map((movie) => {
+            console.log(movie)
+            return (
+              
             <Card
-              key={movie.id}
+              key={movie._id}
               className="group border border-white/20 dark:border-white/10 hover:border-primary/40 hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-2xl flex flex-col justify-between"
             >
-              <div>
+              <Link to={`/movies/${movie._id}`}>
                 {/* Poster Image Container */}
                 <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-dark/10">
                   <img
@@ -197,7 +201,7 @@ const spotlightMovies = movies ;
                     ))}
                   </div>
                 </CardContent>
-              </div>
+              </Link>
 
               {/* Bottom Price & Booking CTA */}
               {/* <div className="pt-3 border-t border-border/50 flex items-center justify-between">
@@ -212,7 +216,7 @@ const spotlightMovies = movies ;
                 </Link>
               </div> */}
             </Card>
-          ))}
+          )})}
         </div>
 
         {/* View All Callout */}

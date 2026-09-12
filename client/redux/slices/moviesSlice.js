@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   fetchMovies,
+  getMovieById,
   nearBy,
   nowPlayingMovies,
 } from '../../src/services/movie.api';
@@ -8,6 +9,8 @@ const initialState = {
   movies: null,
   loading: false,
   error: null,
+  moviesByCity: null,
+  singleMovie : null
 };
 
 export const fetchAllMovies = createAsyncThunk(
@@ -54,6 +57,20 @@ export const nearByMovies = createAsyncThunk(
     }
   }
 );
+export const fetchMovieById = createAsyncThunk(
+  'movies/singleMovie',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await getMovieById(id);
+      const apiData = response.data?.data || response.data 
+   
+        return apiData;
+
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 // /fetchmovies/pending => hanlde this case
 // /fetchmovies/fulfilled => hanlde the data
@@ -74,6 +91,30 @@ const movieSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchAllMovies.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(nearByMovies.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(nearByMovies.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.moviesByCity = action.payload;
+        state.loading = false;
+      })
+      .addCase(nearByMovies.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchMovieById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchMovieById.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.singleMovie = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchMovieById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
