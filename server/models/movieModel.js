@@ -4,6 +4,7 @@ const movieSchema = new mongoose.Schema({
   title: { type: String },
   poster: { type: String },
   duration: { type: Number },
+  description : {type : String},
   genres: [{ type: String }],
   censorRating: { type: String },
   releaseDate: { type: Date },
