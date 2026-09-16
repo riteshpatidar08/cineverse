@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/@alisaitteke/seatmap-canvas/dist/seatmap.canvas.css">
+</head>
+<body>
+    <!-- CSS -->
+
+
+<!-- JavaScript (UMD) -->
+<script src="https://unpkg.com/@alisaitteke/seatmap-canvas/dist/cjs/seatmap.canvas.js"></script>
+
+<!-- Or ESM -->
+<script type="module">
+  import { SeatmapCanvas } from 'https://unpkg.com/@alisaitteke/seatmap-canvas/dist/esm/seatmap.canvas.js';
+</script>
+<script>
+    // Configuration
+const config = {
+    resizable: true,
+    style: {
+        seat: {
+            radius: 12,
+            color: "#6796ff",
+            hover: "#5671ff",
+            not_salable: "#424747",
+            selected: "#56aa45",
+        },
+        block: {
+            fill: "#e2e2e2",
+            stroke: "#e2e2e2"
+        },
+        label: {
+            color: "#000",
+            radius: 12,
+            font_size: "12px",
+            background: "#ffffff"
+        }
+    }
+};
+
+// Initialize
+const seatmap = new SeatmapCanvas(".seatmap-container", config);
+
+// Define data
+const data = {
+    blocks: [
+        {
+            id: 1,
+            title: "Section A",
+            color: "#2c2828",
+            seats: [
+                {
+                    id: 1,
+                    x: 0,
+                    y: 0,
+                    salable: true,
+                    title: "A1"
+                },
+                {
+                    id: 2,
+                    x: 30,
+                    y: 0,
+                    salable: true,
+                    title: "A2"
+                }
+            ]
+        }
+    ]
+};
+
+// Load data
+seatmap.setData(data);
+
+// Handle seat clicks
+seatmap.addEventListener("seat_click", (seat) => {
+    if (seat.selected) {
+        seatmap.seatUnselect(seat);
+    } else {
+        seatmap.seatSelect(seat);
+    }
+});
+</script>
+</body>
+</html>

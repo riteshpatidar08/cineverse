@@ -217,7 +217,7 @@ exports.nowPlaying = asyncHandler(async (req, res) => {
     }
 
     const movieId = show.movie._id.toString();
-
+    console.log(movieId);
     // Create movie group
     if (!theaterData.movies.has(movieId)) {
       theaterData.movies.set(movieId, {
@@ -277,8 +277,7 @@ exports.nowPlaying = asyncHandler(async (req, res) => {
 
     movies: Array.from(theaterData.movies.values()),
   }));
-
-  -(
+  console.log(result, theaterMap) -
     // RESPONSE
 
     res.status(200).json({
@@ -302,8 +301,7 @@ exports.nowPlaying = asyncHandler(async (req, res) => {
           totalPages: Math.ceil(result.length / Number(limit)),
         },
       },
-    })
-  );
+    });
 });
 //fetchmoviesbylocation , moviesDetailsApi
 
@@ -354,5 +352,133 @@ exports.getMovieById = asyncHandler(async (req, res) => {
     success: true,
 
     data: movie,
+  });
+});
+
+// movieid => theatre => threate Show
+// theatre => movie => shows
+
+exports.getShowsByMovieId = asyncHandler(async (req, res) => {
+  const { movieId } = req.params;
+  const { lat, lon, radius = 30000, date, page = 1, limit = 10 } = req.query;
+
+  if (!lat || !lon) {
+    throw new Error('Latitude and longitude required');
+  }
+
+  const latitude = Number(lat);
+  const longitude = Number(lon);
+  const maxDistance = Number(radius);
+
+  if (
+    Number.isNaN(latitude) ||
+    Number.isNaN(longitude) ||
+    Number.isNaN(maxDistance)
+  ) {
+    throw new Error('lat, lon and radius must be valid numbers');
+  }
+
+  const userSelectedDate = date ? new Date(date) : new Date(2026, 8, 8);
+
+  const startDay = new Date(userSelectedDate);
+
+  startDay.setHours(0, 0, 0, 0);
+  console.log(startDay);
+  const endDay = new Date(userSelectedDate);
+
+  endDay.setHours(23, 59, 59, 999);
+  const theaters = await Theater.find({
+    location: {
+      $near: {
+        $geometry: {
+          type: 'Point',
+          coordinates: [longitude, latitude],
+        },
+        $maxDistance: maxDistance,
+      },
+    },
+  })
+
+  // THEATER IDS
+
+  const theaterIds = theaters.map((theater) => theater._id);
+  console.log('theaterIds ', theaterIds);
+  // FIND SHOWS
+
+  const shows = await Show.find({
+    theater: {
+      $in: theaterIds,
+    },
+
+    // IMPORTANT:
+    // Use showDate if that represents the
+    // calendar date of the show.
+    // showDate: {
+    //   $gte: startDay,
+    //   $lte: endDay,
+    // },
+  })
+    .populate({
+      path: 'movie',
+      select: 'title poster certificate language duration genres',
+    })
+    .populate({
+      path: 'theater',
+      select: 'name city location screens',
+    })
+    .lean();
+  // GROUP THEATERS
+  // -----------------------------------------
+  console.log(shows);
+  const theaterMap = new Map();
+  console.log(theaterMap, 'theaterMap');
+
+  shows.forEach((show) => {
+    const theaterId = show.theater.toString();
+    console.log(theaterId, 'ids..................');
+    // Create movie group
+    if (!theaterMap.has(theaterId)) {
+      theaterMap.set(theaterId, {
+        theater: {
+          _id: show.theater._id,
+          name: show.theater.name,
+          city: show.theater.city,
+          location: show.theater.location,
+        },
+        shows: [],
+      });
+
+      const totalSeats = show.seatStatus?.length || 0;
+
+      const availableSeats =
+        show.seatStatus?.filter((seat) => !seat.isBooked).length || 0;
+
+      let status = 'available';
+
+      if (availableSeats === 0) {
+        status = 'sold_out';
+      } else if (availableSeats <= totalSeats * 0.2) {
+        status = 'almost_full';
+      } else if (availableSeats <= totalSeats * 0.5) {
+        status = 'filling_fast';
+      }
+    }
+
+    const totalSeats = show.seatStatus?.length || 0;
+
+    theaterMap.get(theaterId).shows.push({
+      _id: show._id,
+      screenName: show.screenName,
+      startTime: show.startTime,
+      // seatStatus : show.seatStatus
+   
+    });
+  });
+  const result = Array.from(theaterMap.values());
+
+  res.status(200).json({
+    data: {
+      result,
+    },
   });
 });
