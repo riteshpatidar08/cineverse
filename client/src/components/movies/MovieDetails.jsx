@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMovieById } from '../../../redux/slices/moviesSlice';
+import { fetchMovieById, getShows } from '../../../redux/slices/moviesSlice';
 
 /* ── tiny helpers ─────────────────────────────────────── */
 function formatDuration(mins) {
@@ -48,15 +48,22 @@ function StarRating({ score, outOf = 5 }) {
 
 /* ══════════════════════════════════════════════════════ */
 export default function MovieDetails() {
-  const { id } = useParams();
+  const { id, name } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { singleMovie: movie, loading } = useSelector((s) => s.movies);
+  const { longitude, latitude } = useSelector((state) => state.location);
 
   useEffect(() => {
     dispatch(fetchMovieById(id));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
+  const handleTicketBook = () => {
+    if (latitude && longitude) {
+      navigate(`/booking/${name}/${id}`);
+    }
+  };
   /* ── loading state ──────────────────────────────────── */
   if (loading || !movie) {
     return (
@@ -203,7 +210,7 @@ export default function MovieDetails() {
 
             {/* CTA */}
             <div className="flex items-center gap-3 pt-1">
-              <button className="h-11 px-8 rounded-xl text-xs font-extrabold uppercase tracking-widest text-white bg-gradient-to-r from-[#230d56] via-[#351371] to-[#471b8e] hover:from-[#351371] hover:to-[#471b8e] shadow-lg shadow-[#471b8e]/30 transition-all duration-300 active:scale-[0.97] cursor-pointer">
+              <button onClick={handleTicketBook} className="h-11 px-8 rounded-xl text-xs font-extrabold uppercase tracking-widest text-white bg-gradient-to-r from-[#230d56] via-[#351371] to-[#471b8e] hover:from-[#351371] hover:to-[#471b8e] shadow-lg shadow-[#471b8e]/30 transition-all duration-300 active:scale-[0.97] cursor-pointer">
                 Book Tickets
               </button>
               {trailerUrl && (

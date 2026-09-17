@@ -359,8 +359,12 @@ exports.getMovieById = asyncHandler(async (req, res) => {
 // theatre => movie => shows
 
 exports.getShowsByMovieId = asyncHandler(async (req, res) => {
-  const { movieId } = req.params;
-  const { lat, lon, radius = 30000, date, page = 1, limit = 10 } = req.query;
+  const { id } = req.params; // movieId is in params
+  const { lat, lon, radius = 30000, date } = req.query;
+
+  console.log('\n=== GET SHOWS BY MOVIE ID ===');
+  console.log('Movie ID:', id);
+  console.log('Coords:', { lat, lon, radius });
 
   if (!lat || !lon) {
     throw new Error('Latitude and longitude required');
@@ -378,15 +382,7 @@ exports.getShowsByMovieId = asyncHandler(async (req, res) => {
     throw new Error('lat, lon and radius must be valid numbers');
   }
 
-  const userSelectedDate = date ? new Date(date) : new Date(2026, 8, 8);
-
-  const startDay = new Date(userSelectedDate);
-
-  startDay.setHours(0, 0, 0, 0);
-  console.log(startDay);
-  const endDay = new Date(userSelectedDate);
-
-  endDay.setHours(23, 59, 59, 999);
+  // Step 1: Find nearby theaters
   const theaters = await Theater.find({
     location: {
       $near: {
@@ -397,88 +393,81 @@ exports.getShowsByMovieId = asyncHandler(async (req, res) => {
         $maxDistance: maxDistance,
       },
     },
-  })
+  }).lean();
 
-  // THEATER IDS
+  console.log('Theaters found:', theaters.length);
 
   const theaterIds = theaters.map((theater) => theater._id);
-  console.log('theaterIds ', theaterIds);
-  // FIND SHOWS
 
+  // Step 2: FIND SHOWS FOR THIS SPECIFIC MOVIE at nearby theaters (NO DATE FILTER)
   const shows = await Show.find({
-    theater: {
-      $in: theaterIds,
-    },
-
-    // IMPORTANT:
-    // Use showDate if that represents the
-    // calendar date of the show.
-    // showDate: {
-    //   $gte: startDay,
-    //   $lte: endDay,
-    // },
+    movie: id,
+    theater: { $in: theaterIds },
   })
     .populate({
-      path: 'movie',
-      select: 'title poster certificate language duration genres',
-    })
-    .populate({
       path: 'theater',
-      select: 'name city location screens',
+      select: 'name city location',
     })
     .lean();
-  // GROUP THEATERS
-  // -----------------------------------------
-  console.log(shows);
+
+  console.log('Shows found (no date filter):', shows.length);
+
+  // GROUP BY THEATER
   const theaterMap = new Map();
-  console.log(theaterMap, 'theaterMap');
 
+  // Initialize all nearby theaters
+  theaters.forEach((theater) => {
+    theaterMap.set(theater._id.toString(), {
+      theater: {
+        _id: theater._id,
+        name: theater.name,
+        city: theater.city,
+        location: theater.location,
+      },
+      shows: [],
+    });
+  });
+
+  // Add shows to their theaters
   shows.forEach((show) => {
-    const theaterId = show.theater.toString();
-    console.log(theaterId, 'ids..................');
-    // Create movie group
-    if (!theaterMap.has(theaterId)) {
-      theaterMap.set(theaterId, {
-        theater: {
-          _id: show.theater._id,
-          name: show.theater.name,
-          city: show.theater.city,
-          location: show.theater.location,
-        },
-        shows: [],
-      });
+    const theaterId = show.theater._id.toString();
 
-      const totalSeats = show.seatStatus?.length || 0;
-
-      const availableSeats =
-        show.seatStatus?.filter((seat) => !seat.isBooked).length || 0;
-
-      let status = 'available';
-
-      if (availableSeats === 0) {
-        status = 'sold_out';
-      } else if (availableSeats <= totalSeats * 0.2) {
-        status = 'almost_full';
-      } else if (availableSeats <= totalSeats * 0.5) {
-        status = 'filling_fast';
-      }
-    }
+    if (!theaterMap.has(theaterId)) return;
 
     const totalSeats = show.seatStatus?.length || 0;
+    const availableSeats =
+      show.seatStatus?.filter((seat) => !seat.isBooked).length || 0;
+
+    let status = 'available';
+    if (availableSeats === 0) {
+      status = 'sold_out';
+    } else if (availableSeats <= totalSeats * 0.2) {
+      status = 'almost_full';
+    } else if (availableSeats <= totalSeats * 0.5) {
+      status = 'filling_fast';
+    }
 
     theaterMap.get(theaterId).shows.push({
       _id: show._id,
       screenName: show.screenName,
       startTime: show.startTime,
-      // seatStatus : show.seatStatus
-   
+      totalSeats,
+      availableSeats,
+      status,
     });
   });
-  const result = Array.from(theaterMap.values());
+
+  // Filter out theaters with no shows
+  const result = Array.from(theaterMap.values()).filter(t => t.shows.length > 0);
+
+  console.log('Result theaters with shows:', result.length);
+  console.log('=== END ===\n');
 
   res.status(200).json({
+    success: true,
     data: {
       result,
+      location: { latitude, longitude, radius: maxDistance },
     },
   });
 });

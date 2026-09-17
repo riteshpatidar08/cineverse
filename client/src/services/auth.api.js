@@ -9,5 +9,6 @@ export const disable2fa = (data) => api.post('/auth/2fa/disable' , data);
 export const resendOtp = (data) => api.post('/auth/resend-otp' , data);
 export const verify = () => api.post('/auth/verify');
 
+
 //movies
 export const fetchMovies = () => api.get('/movies')

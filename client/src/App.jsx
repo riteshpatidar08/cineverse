@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import OpenRoutes from './components/OpenRoutes';
 import MovieDetails from './components/movies/MovieDetails';
+import BookingPage from './pages/BookingPage';
 
 function App() {
   
@@ -21,7 +22,8 @@ function App() {
 
           <Route path="/" element={<Home />} />
           <Route path="/movies" element={<Movies />} />
-          <Route path="/movies/:id" element={<MovieDetails />} />
+          <Route path="/movies/:name/:id" element={<MovieDetails />} />
+          <Route path="/booking/:name/:id" element={<BookingPage />} />
           <Route path="/browse" />
 
           <Route element={<OpenRoutes />}>

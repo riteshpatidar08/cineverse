@@ -4,8 +4,9 @@ const Show = require("../models/showModel");
 const Movie = require("../models/movieModel");
 const Theater = require("../models/theaterModel");
 
-const MONGO_URI =
-  process.env.MONGO_URI ||
+require('dotenv').config();
+
+const MONGO_URI = process.env.MONGODB_URI;
 
 
 // -----------------------------------------------------
@@ -76,8 +77,11 @@ function generateSeatStatus(screen) {
 function generateShows(movies, theaters) {
   const shows = [];
 
+  // Use TODAY's date, not a hardcoded date
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  
+  console.log(`\nSeeding shows starting from: ${today.toDateString()}`);
 
   theaters.forEach((theater) => {
     console.log(`Processing theater: ${theater.name}`);

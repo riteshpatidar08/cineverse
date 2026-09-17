@@ -3,11 +3,12 @@ const { getAllMovies, nowPlaying, fetchMovieByCity, getMovieById, getShowsByMovi
 
 const router = express.Router() ;
 
-
-router.get('/movies' , getAllMovies)
+// Place specific routes BEFORE generic :id routes
 router.get('/movies/now-playing' , nowPlaying)
 router.get('/movies/nearby' , fetchMovieByCity)
+router.get('/movies/:id/shows' , getShowsByMovieId)
+router.get('/movies' , getAllMovies)
 router.get('/movies/:id' , getMovieById)
-router.get('/movies/:movieid/shows' , getShowsByMovieId)
+
 module.exports = router ;
 

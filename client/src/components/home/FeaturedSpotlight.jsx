@@ -4,6 +4,7 @@ import { Card, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { useSelector } from 'react-redux';
+import createMovieSlug from '../../lib/movieSlug';
 export default function FeaturedSpotlight() {
   const {moviesByCity , loading} = useSelector((state)=>state.movies)
  
@@ -143,7 +144,7 @@ const spotlightMovies = moviesByCity ;
               key={movie._id}
               className="group border border-white/20 dark:border-white/10 hover:border-primary/40 hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-2xl flex flex-col justify-between"
             >
-              <Link to={`/movies/${movie._id}`}>
+              <Link to={`/movies/${createMovieSlug(movie.title)}/${movie._id}`}>
                 {/* Poster Image Container */}
                 <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-dark/10">
                   <img

@@ -4,13 +4,17 @@ import {
   getMovieById,
   nearBy,
   nowPlayingMovies,
+  getShowByMovieId
 } from '../../src/services/movie.api';
+// import { getShowsByMovieId } from '../../../server/controllers/movieController';
+
 const initialState = {
   movies: null,
   loading: false,
   error: null,
   moviesByCity: null,
-  singleMovie : null
+  singleMovie : null,
+  shows : []
 };
 
 export const fetchAllMovies = createAsyncThunk(
@@ -72,6 +76,22 @@ export const fetchMovieById = createAsyncThunk(
   }
 );
 
+
+
+export const getShows = createAsyncThunk(
+  'movies/getShow',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await getShowByMovieId(data);
+      // API returns { data: { result: [] } }
+      const apiData = response.data?.data || response.data || {};
+      return apiData;
+
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 // /fetchmovies/pending => hanlde this case
 // /fetchmovies/fulfilled => hanlde the data
 // /fetchmovies/rejected => handle the error
@@ -115,6 +135,17 @@ const movieSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchMovieById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      }).addCase(getShows.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getShows.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.shows = action.payload;
+        state.loading = false;
+      })
+      .addCase(getShows.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

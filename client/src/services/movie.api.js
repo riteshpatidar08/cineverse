@@ -9,15 +9,20 @@ export const fetchMovieById = (id) => {
 };
 
 
-export const nowPlayingMovies  = (data) => {
-  return api.get(`movies/now-playing` , data)
-}
+export const nowPlayingMovies = (data) => {
+  return api.get(`movies/now-playing`, data);
+};
 
 export const nearBy = (data) => {
-  const {latitude , longitude} = data
-  return api.get(`movies/nearby?lat=${latitude}&lon=${longitude}` , data)
-}
+  const { latitude, longitude } = data;
+  return api.get(`movies/nearby?lat=${latitude}&lon=${longitude}`, data);
+};
 
 export const getMovieById = (id) => {
-  return api.get(`movies/${id}`)
-}
+  return api.get(`movies/${id}`);
+};
+
+export const getShowByMovieId = (data) => {
+  const {latitude , longitude , id} = data
+  return api.get(`movies/${id}/shows?lat=${latitude}&lon=${longitude}`);
+};
