@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Movie = require('../models/movieModel.js');
 const Theater = require('../models/theaterModel.js');
 const Show = require('../models/showModel.js');
+const cloudinary = require('../config/cloudinary.js')
 // @desc get all movies
 //@route GET  /api/v1/movies
 exports.getAllMovies = asyncHandler(async (req, res) => {
@@ -29,25 +30,44 @@ exports.getAllMovies = asyncHandler(async (req, res) => {
 
 //@desc create a movie
 //@route post /api/v1/movies
-exports.createMovie = asyncHandler(async (req, res) => {
-  const { title, duration, genres, censorRating, releaseDate, poster } =
-    req.body;
+exports.createMovie = async (req, res) => {
+try {
+  const { title, duration, genres, censorRating, releaseDate } =
+  req.body;
+  console.log('runniing..................')
 
-  const movie = await Movie.create({
-    title,
-    duration,
-    genres,
-    censorRating,
-    releaseDate,
-    poster,
-  });
+  console.log(req.file) ;
 
-  res.status(201).json({
-    success: true,
-    message: 'Movie successfully created',
-    data: movie,
-  });
+  const uploadResult = await new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream((error, uploadResult) => {
+        if (error) {
+            return reject(error);
+        }
+        return resolve(uploadResult);
+    }).end(req.file.buffer);
 });
+
+  console.log(uploadResult)
+const movie = await Movie.create({
+  title,
+  duration,
+  genres,
+  censorRating,
+  releaseDate,
+poster : uploadResult.secure_url
+});
+
+res.status(201).json({
+  success: true,
+  message: 'Movie successfully created',
+  data: movie,
+});
+} catch (error) {
+  res.json({
+    message : error.message
+  })
+}
+};
 
 // exports.nowPlaying = asyncHandler(async (req, res) => {
 //   const { lat, lon, radius, date, page = 1, limit = 10 } = req.query;
