@@ -93,7 +93,7 @@ const spotlightMovies = moviesByCity ;
   //   },
   // ];
 
-  const filteredMovies = spotlightMovies?.filter((movie) => {
+const filteredMovies = spotlightMovies?.filter((movie) => {
     if (activeCategory === 'Now Showing') return true;
     return movie.category === activeCategory;
   });

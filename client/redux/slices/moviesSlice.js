@@ -91,6 +91,7 @@ export const getShows = createAsyncThunk(
       return rejectWithValue(error.message);
     }
   }
+  
 );
 // /fetchmovies/pending => hanlde this case
 // /fetchmovies/fulfilled => hanlde the data

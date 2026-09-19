@@ -6,6 +6,7 @@ const dbConnect = require('./config/db.js');
 const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes.js');
 const movieRoutes = require('./routes/movieRoutes.js')
+const cityRoutes = require('./routes/cityRoutes.js')
 const errorHandler = require('./middlewares/errorHandler.js');
 const cookieParse =require('cookie-parser')
 
@@ -40,6 +41,7 @@ app.get('/', (req, res, next) => {
 
 app.use('/api/v1/auth' , authRoutes)
 app.use('/api/v1' , movieRoutes)
+app.use('/api/v1' , cityRoutes)
 //Handler for the route which is not found
 app.use((req, res) => {
   res.status(404).json({
