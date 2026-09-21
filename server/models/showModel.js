@@ -14,15 +14,16 @@ const showSchema = new mongoose.Schema({
   screenName: { type: String },
   showDate: { type: Date },
   startTime: { type: Date },
-  seatStatus: [
-    {
-      seatRow: { type: String },
-      seatNumber: { type: String },
-      seatPrice : {type :Number},
-      seatCategory: { type: String },
-      isBooked: { type: Boolean },
-    },
-  ],
+  
+  // seatStatus: [
+  //   {
+  //     seatRow: { type: String },
+  //     seatNumber: { type: String },
+  //     seatPrice : {type :Number},
+  //     seatCategory: { type: String },
+  //     isBooked: { type: Boolean },
+  //   },
+  // ],
 });
 
 const Show = mongoose.model('Show' , showSchema) ;

@@ -22,3 +22,5 @@ exports.getLocation = async(req,res)=>{
 }
 
 // currentlocaiton , top citities list 
+//fetch cities and create a model in frontend 
+//resolve the screen issue in the book ticket api getShowByMovieid ;
