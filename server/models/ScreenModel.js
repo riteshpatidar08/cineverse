@@ -7,6 +7,9 @@ const screenSchema = new mongoose.Schema({
      rows : [{
         label : String ,
         category : String ,
+        layout : {type : String , required : true},
+        start : {type :Number , default : 1} ,
+        spaceAfter : {type : Number  , default : 0} ,
         seats : [{number : Number}  ]
      }]
 })

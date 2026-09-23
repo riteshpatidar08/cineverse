@@ -14,8 +14,11 @@ const showSchema = new mongoose.Schema({
   screenName: { type: String },
   showDate: { type: Date },
   startTime: { type: Date },
-  
-  // seatStatus: [
+  categoryPricing : [{
+    category : {type : String , required : true},
+    price : {type: Number , required : true}
+  }]
+   // seatStatus: [
   //   {
   //     seatRow: { type: String },
   //     seatNumber: { type: String },

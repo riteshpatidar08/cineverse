@@ -1,7 +1,7 @@
 
 
 function createMovieSlug(title) {
-   return title.trim().toLowerCase().replace(/[\s\W\-_]+/g, '-');
+   return title?.trim().toLowerCase().replace(/[\s\W\-_]+/g, '-');
 
 }
 

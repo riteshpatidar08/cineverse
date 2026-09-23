@@ -3,8 +3,15 @@ require('dotenv').config();
 
 const Show = require("../models/showModel");
 const ShowSeat = require("../models/showSeatModel");
-const Theater = require("../models/theaterModel");
+const Screen = require("../models/ScreenModel");
 const MONGO_URI = process.env.MONGODB_URI;
+
+// Generate layout pattern: S for available, _ for booked
+function generateLayoutPattern(seats, bookedSeats) {
+  return seats
+    .map((seat) => (bookedSeats.has(seat.number) ? "_" : "S"))
+    .join("");
+}
 
 async function seedShowSeats() {
   try {
@@ -22,15 +29,9 @@ async function seedShowSeats() {
     const deleteResult = await ShowSeat.deleteMany({});
     console.log(`Deleted ${deleteResult.deletedCount} old show seats\n`);
 
-    // Get all shows with theater info (to get seatLayout)
+    // Get all shows
     console.log("Fetching all shows...");
-    const shows = await Show.find()
-      .populate({
-        path: "theater",
-        select: "screens",
-      })
-      .lean();
-
+    const shows = await Show.find().lean();
     console.log(`Found ${shows.length} shows\n`);
 
     if (shows.length === 0) {
@@ -38,56 +39,98 @@ async function seedShowSeats() {
       process.exit(1);
     }
 
+    // Get all screens
+    console.log("Fetching all screens...");
+    const screens = await Screen.find().lean();
+    console.log(`Found ${screens.length} screens\n`);
+
+    if (screens.length === 0) {
+      console.log("❌ No screens found. Run screen seeder first.");
+      process.exit(1);
+    }
+
+    // Create a map of screens by name
+    const screensByName = {};
+    screens.forEach((screen) => {
+      screensByName[screen.name] = screen;
+    });
+
     // Generate seats for each show
     let totalSeatsCreated = 0;
     const showSeatsToInsert = [];
+    const screenUpdates = {}; // Track layout updates for each screen row
 
     console.log("Generating seats for each show...");
 
     for (const show of shows) {
-      if (!show.theater || !show.theater.screens || show.theater.screens.length === 0) {
-        console.log(`  ⚠️  Show ${show._id} has no theater/screens, skipping...`);
-        continue;
-      }
-
-      // Find the screen that matches this show
-      const screen = show.theater.screens.find(
-        (s) => s.screenName === show.screenName
-      );
+      const screen = screensByName[show.screenName];
 
       if (!screen) {
-        console.log(`  ⚠️  Show ${show._id} screen not found, skipping...`);
         continue;
       }
 
-      // Generate seats for each row in the screen's seatLayout
-      for (const rowLayout of screen.seatLayout) {
-        for (const seatNum of rowLayout.seats) {
-          const seatId = `${rowLayout.row}${seatNum}`;
+      // For each row in the screen
+      for (const rowLayout of screen.rows) {
+        const bookedSeatsForThisRow = new Set();
+        
+        // Generate seat records for this row
+        for (const seat of rowLayout.seats) {
+          const seatId = `${rowLayout.label}${seat.number}`;
 
           // Randomly book some seats (20% booked rate)
           const isBooked = Math.random() < 0.2;
+          
+          if (isBooked) {
+            bookedSeatsForThisRow.add(seat.number);
+          }
 
           showSeatsToInsert.push({
             show: show._id,
             seatId,
             status: isBooked ? "booked" : "available",
-            price: rowLayout.seatPrice,
+            price: rowLayout.category === "premium" ? 350 : 220,
           });
 
           totalSeatsCreated++;
         }
+
+        // Generate layout pattern for this row/show combination
+        const layoutPattern = generateLayoutPattern(
+          rowLayout.seats,
+          bookedSeatsForThisRow
+        );
+
+        // Store unique key for tracking updates
+        const updateKey = `${screen._id}-${rowLayout.label}`;
+        screenUpdates[updateKey] = layoutPattern;
       }
 
-      // Log progress every 100 shows
-      if (shows.indexOf(show) % 100 === 0) {
+      // Log progress every 500 shows
+      if (shows.indexOf(show) % 500 === 0) {
         console.log(`  Processing show ${shows.indexOf(show) + 1}/${shows.length}...`);
       }
     }
 
-    console.log(`Generated ${totalSeatsCreated} seat records\n`);
+    console.log(`\nGenerated ${totalSeatsCreated} seat records\n`);
 
-    // Insert in batches to avoid memory issues
+    // Update screens with layout patterns
+    console.log("Updating screen layouts...");
+    let layoutsUpdated = 0;
+    for (const screen of screens) {
+      const updatedRows = screen.rows.map((row) => {
+        const key = `${screen._id}-${row.label}`;
+        if (screenUpdates[key]) {
+          row.layout = screenUpdates[key];
+          layoutsUpdated++;
+        }
+        return row;
+      });
+
+      await Screen.findByIdAndUpdate(screen._id, { rows: updatedRows });
+    }
+    console.log(`Updated ${layoutsUpdated} row layouts\n`);
+
+    // Insert seats in batches to avoid memory issues
     const BATCH_SIZE = 5000;
     console.log(`Inserting seats in batches of ${BATCH_SIZE}...\n`);
 
@@ -116,6 +159,15 @@ async function seedShowSeats() {
       const percentage = ((stat.count / totalSeatsCreated) * 100).toFixed(1);
       console.log(`  ${stat._id}: ${stat.count} (${percentage}%)`);
     });
+
+    // Sample layout display
+    const sampleScreen = await Screen.findOne().lean();
+    if (sampleScreen && sampleScreen.rows.length > 0) {
+      console.log("\nSample Layout Patterns:");
+      sampleScreen.rows.slice(0, 3).forEach((row) => {
+        console.log(`  Row ${row.label}: ${row.layout}`);
+      });
+    }
 
     console.log("\n==============================");
     console.log("SHOW SEAT SEEDING COMPLETED");
