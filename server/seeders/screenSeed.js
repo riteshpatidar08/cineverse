@@ -6,15 +6,16 @@ const Screen = require("../models/ScreenModel");
 const MONGO_URI = process.env.MONGODB_URI;
 
 // Screen row configurations for different theater types
+// NOTE: All rows with same category have SAME layout pattern
 const screenConfigs = [
   {
     name: "Screen 1",
     rows: [
-      // Regular seats: A-E
+      // Regular seats: A-E (ALL SAME LAYOUT)
       {
         label: "A",
         category: "regular",
-        layout: "SSSS_SSSS_SSSS_SSSS_SSSS_S",
+        layout: "SSSSSSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -22,7 +23,7 @@ const screenConfigs = [
       {
         label: "B",
         category: "regular",
-        layout: "SSSS_SSSS_SSSS_SSSS_SSSS_S",
+        layout: "SSSSSSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -30,7 +31,7 @@ const screenConfigs = [
       {
         label: "C",
         category: "regular",
-        layout: "SSS__SSS__SSS__SSS__SSS__S",
+        layout: "SSSSSSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -38,7 +39,7 @@ const screenConfigs = [
       {
         label: "D",
         category: "regular",
-        layout: "SSSSSSSS_SSSSSSSS_SSSSSSSS",
+        layout: "SSSSSSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -46,16 +47,16 @@ const screenConfigs = [
       {
         label: "E",
         category: "regular",
-        layout: "SSSSSSSSSSS_SSSSSSSSSSS",
+        layout: "SSSSSSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
       },
-      // Premium seats: F-J
+      // Premium seats: F-J (ALL SAME LAYOUT)
       {
         label: "F",
         category: "premium",
-        layout: "SS__SS__SS__SS__SS__SS__S",
+        layout: "SSSSS_SSSSS_SSSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -63,7 +64,7 @@ const screenConfigs = [
       {
         label: "G",
         category: "premium",
-        layout: "SSSS_SSSS_SSSS_SSSS_SSSS_S",
+        layout: "SSSSS_SSSSS_SSSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -71,7 +72,7 @@ const screenConfigs = [
       {
         label: "H",
         category: "premium",
-        layout: "SSSSSSSSSSS_SSSSSSSSSSS",
+        layout: "SSSSS_SSSSS_SSSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -79,7 +80,7 @@ const screenConfigs = [
       {
         label: "I",
         category: "premium",
-        layout: "SSS__SSS__SSS__SSS__SSS__S",
+        layout: "SSSSS_SSSSS_SSSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -87,7 +88,7 @@ const screenConfigs = [
       {
         label: "J",
         category: "premium",
-        layout: "SSSSSSSS_SSSSSSSS_SSSSSSSS",
+        layout: "SSSSS_SSSSS_SSSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 24 }, (_, i) => ({ number: i + 1 })),
@@ -97,10 +98,11 @@ const screenConfigs = [
   {
     name: "Screen 2",
     rows: [
+      // Regular seats (ALL SAME LAYOUT)
       {
         label: "A",
         category: "regular",
-        layout: "SSSS_SSSS_SSSS_SSSS_S",
+        layout: "SSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -108,7 +110,7 @@ const screenConfigs = [
       {
         label: "B",
         category: "regular",
-        layout: "SSS__SSS__SSS__SSS__SSS",
+        layout: "SSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -116,15 +118,16 @@ const screenConfigs = [
       {
         label: "C",
         category: "regular",
-        layout: "SSSSSSSS_SSSSSSSS_S",
+        layout: "SSSSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
       },
+      // Premium seats (ALL SAME LAYOUT)
       {
         label: "D",
         category: "premium",
-        layout: "SS__SS__SS__SS__SS__",
+        layout: "SSSS_SSSS_SSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -132,7 +135,7 @@ const screenConfigs = [
       {
         label: "E",
         category: "premium",
-        layout: "SSSS_SSSS_SSSS_SSSS_S",
+        layout: "SSSS_SSSS_SSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -140,7 +143,7 @@ const screenConfigs = [
       {
         label: "F",
         category: "premium",
-        layout: "SSSSSSSS_SSSSSSSS_S",
+        layout: "SSSS_SSSS_SSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -148,7 +151,7 @@ const screenConfigs = [
       {
         label: "G",
         category: "premium",
-        layout: "SSS__SSS__SSS__SSS__SSS",
+        layout: "SSSS_SSSS_SSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -156,7 +159,7 @@ const screenConfigs = [
       {
         label: "H",
         category: "premium",
-        layout: "SSSSSSS_SSSSSSS_SSSSS",
+        layout: "SSSS_SSSS_SSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -164,7 +167,7 @@ const screenConfigs = [
       {
         label: "I",
         category: "premium",
-        layout: "SS__SS__SS__SS__SS__",
+        layout: "SSSS_SSSS_SSSS_SSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 20 }, (_, i) => ({ number: i + 1 })),
@@ -174,10 +177,11 @@ const screenConfigs = [
   {
     name: "Screen 3",
     rows: [
+      // Regular seats (ALL SAME LAYOUT)
       {
         label: "A",
         category: "regular",
-        layout: "SSS__SSS__SSS__SSS_",
+        layout: "SSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
@@ -185,7 +189,7 @@ const screenConfigs = [
       {
         label: "B",
         category: "regular",
-        layout: "SSSSSSSS_SSSSSSSS",
+        layout: "SSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
@@ -193,7 +197,7 @@ const screenConfigs = [
       {
         label: "C",
         category: "regular",
-        layout: "SS__SS__SS__SS__SS",
+        layout: "SSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
@@ -201,15 +205,16 @@ const screenConfigs = [
       {
         label: "D",
         category: "regular",
-        layout: "SSSSSSS_SSSSSSS_S",
+        layout: "SSSSSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
       },
+      // Premium seats (ALL SAME LAYOUT)
       {
         label: "E",
         category: "premium",
-        layout: "SSS_SSS_SSS_SSS",
+        layout: "SSSS_SSSS_SSSS_SSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
@@ -217,7 +222,7 @@ const screenConfigs = [
       {
         label: "F",
         category: "premium",
-        layout: "SSS__SSS__SSS__SSS_",
+        layout: "SSSS_SSSS_SSSS_SSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
@@ -225,7 +230,7 @@ const screenConfigs = [
       {
         label: "G",
         category: "premium",
-        layout: "SSS_SSS_SSS_SSS_",
+        layout: "SSSS_SSSS_SSSS_SSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
@@ -233,7 +238,7 @@ const screenConfigs = [
       {
         label: "H",
         category: "premium",
-        layout: "SS__SS__SS__SS__SS",
+        layout: "SSSS_SSSS_SSSS_SSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 18 }, (_, i) => ({ number: i + 1 })),
@@ -243,10 +248,11 @@ const screenConfigs = [
   {
     name: "Screen 4",
     rows: [
+      // Regular seats (ALL SAME LAYOUT)
       {
         label: "A",
         category: "regular",
-        layout: "SSS__SSS__SSS_",
+        layout: "SSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 15 }, (_, i) => ({ number: i + 1 })),
@@ -254,7 +260,7 @@ const screenConfigs = [
       {
         label: "B",
         category: "regular",
-        layout: "SSSSSSSS_SSS",
+        layout: "SSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 15 }, (_, i) => ({ number: i + 1 })),
@@ -262,15 +268,16 @@ const screenConfigs = [
       {
         label: "C",
         category: "regular",
-        layout: "SS__SS__SS__SS",
+        layout: "SSSSSSSSSSSSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 15 }, (_, i) => ({ number: i + 1 })),
       },
+      // Premium seats (ALL SAME LAYOUT)
       {
         label: "D",
         category: "premium",
-        layout: "SSSSS_SSSSS_S",
+        layout: "SSSS_SSSS_SSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 15 }, (_, i) => ({ number: i + 1 })),
@@ -278,7 +285,7 @@ const screenConfigs = [
       {
         label: "E",
         category: "premium",
-        layout: "SSS__SSS__SSS_",
+        layout: "SSSS_SSSS_SSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 15 }, (_, i) => ({ number: i + 1 })),
@@ -286,7 +293,7 @@ const screenConfigs = [
       {
         label: "F",
         category: "premium",
-        layout: "SSSSSSSS_SSS",
+        layout: "SSSS_SSSS_SSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 15 }, (_, i) => ({ number: i + 1 })),
@@ -294,7 +301,7 @@ const screenConfigs = [
       {
         label: "G",
         category: "premium",
-        layout: "SS__SS__SS__SS",
+        layout: "SSSS_SSSS_SSSSS",
         start: 1,
         spaceAfter: 0,
         seats: Array.from({ length: 15 }, (_, i) => ({ number: i + 1 })),
@@ -365,9 +372,9 @@ async function seedScreens() {
       console.log(`  Theater ID: ${sample.theater}`);
       console.log(`  Screen Name: ${sample.name}`);
       console.log(`  Rows: ${sample.rows.length}`);
-      sample.rows.slice(0, 3).forEach((row) => {
+      sample.rows.slice(0, 5).forEach((row) => {
         console.log(
-          `    Row ${row.label}: ${row.seats.length} ${row.category} seats | Layout: ${row.layout}`
+          `    Row ${row.label} (${row.category}): ${row.seats.length} seats | Layout: ${row.layout}`
         );
       });
     }

@@ -9,7 +9,7 @@ const showSchema = new mongoose.Schema({
   theater: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Theater',
-    required: true,
+  required: true,
   },
   screenName: { type: String },
   showDate: { type: Date },

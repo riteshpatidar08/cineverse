@@ -33,3 +33,6 @@ const authSlice = createSlice({
 
 export default authSlice.reducer ;
 export const {authenticated} = authSlice.actions
+
+
+//show id ka use krke aapko seat layout

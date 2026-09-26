@@ -6,11 +6,25 @@ const ShowSeat = require("../models/showSeatModel");
 const Screen = require("../models/ScreenModel");
 const MONGO_URI = process.env.MONGODB_URI;
 
-// Generate layout pattern: S for available, _ for booked
-function generateLayoutPattern(seats, bookedSeats) {
-  return seats
-    .map((seat) => (bookedSeats.has(seat.number) ? "_" : "S"))
-    .join("");
+// Fake user IDs to simulate locked seats
+const FAKE_USER_IDS = [
+  "user_abc123", "user_def456", "user_ghi789",
+  "user_jkl012", "user_mno345", "user_pqr678",
+];
+
+// Distribution: 75% available, 15% booked, 10% locked
+function getSeatStatus() {
+  const rand = Math.random();
+  if (rand < 0.75) return "available";
+  if (rand < 0.90) return "booked";
+  return "locked";
+}
+
+function getLockedExpiry() {
+  // Lock expires between 5 and 15 minutes from now
+  const now = new Date();
+  const minutesAhead = Math.floor(Math.random() * 10) + 5;
+  return new Date(now.getTime() + minutesAhead * 60 * 1000);
 }
 
 async function seedShowSeats() {
@@ -19,7 +33,6 @@ async function seedShowSeats() {
     console.log("SHOW SEAT SEEDER STARTED");
     console.log("==============================\n");
 
-    // Connect to MongoDB
     console.log("Connecting to MongoDB...");
     await mongoose.connect(MONGO_URI);
     console.log("MongoDB connected successfully\n");
@@ -29,7 +42,7 @@ async function seedShowSeats() {
     const deleteResult = await ShowSeat.deleteMany({});
     console.log(`Deleted ${deleteResult.deletedCount} old show seats\n`);
 
-    // Get all shows
+    // Fetch all shows
     console.log("Fetching all shows...");
     const shows = await Show.find().lean();
     console.log(`Found ${shows.length} shows\n`);
@@ -39,7 +52,7 @@ async function seedShowSeats() {
       process.exit(1);
     }
 
-    // Get all screens
+    // Fetch all screens
     console.log("Fetching all screens...");
     const screens = await Screen.find().lean();
     console.log(`Found ${screens.length} screens\n`);
@@ -49,125 +62,114 @@ async function seedShowSeats() {
       process.exit(1);
     }
 
-    // Create a map of screens by name
-    const screensByName = {};
+    // Map screens by theater + name
+    const screenMap = {};
     screens.forEach((screen) => {
-      screensByName[screen.name] = screen;
+      const key = `${screen.theater}_${screen.name}`;
+      screenMap[key] = screen;
     });
 
-    // Generate seats for each show
+    // Generate seat records
     let totalSeatsCreated = 0;
+    let skippedShows = 0;
     const showSeatsToInsert = [];
-    const screenUpdates = {}; // Track layout updates for each screen row
 
-    console.log("Generating seats for each show...");
+    const statusCount = { available: 0, booked: 0, locked: 0 };
 
-    for (const show of shows) {
-      const screen = screensByName[show.screenName];
+    console.log("Generating seats for each show...\n");
+
+    for (let i = 0; i < shows.length; i++) {
+      const show = shows[i];
+      const screenKey = `${show.theater}_${show.screenName}`;
+      const screen = screenMap[screenKey];
 
       if (!screen) {
+        skippedShows++;
         continue;
       }
 
-      // For each row in the screen
-      for (const rowLayout of screen.rows) {
-        const bookedSeatsForThisRow = new Set();
-        
-        // Generate seat records for this row
-        for (const seat of rowLayout.seats) {
-          const seatId = `${rowLayout.label}${seat.number}`;
+      for (const row of screen.rows) {
+        // Get price from show's categoryPricing matching the row category
+        let price = 220; // default fallback
+        const matched = show.categoryPricing?.find(
+          (cp) => cp.category.toLowerCase() === row.category.toLowerCase()
+        );
+        if (matched) price = matched.price;
 
-          // Randomly book some seats (20% booked rate)
-          const isBooked = Math.random() < 0.2;
-          
-          if (isBooked) {
-            bookedSeatsForThisRow.add(seat.number);
-          }
+        for (const seat of row.seats) {
+          const seatId = `${row.label}${seat.number}`;
+          const status = getSeatStatus();
 
-          showSeatsToInsert.push({
+          const doc = {
             show: show._id,
             seatId,
-            status: isBooked ? "booked" : "available",
-            price: rowLayout.category === "premium" ? 350 : 220,
-          });
+            status,
+            price,
+          };
 
+          // Add lock fields only for locked seats
+          if (status === "locked") {
+            doc.lockedBy = FAKE_USER_IDS[Math.floor(Math.random() * FAKE_USER_IDS.length)];
+            doc.lockedExpiresAt = getLockedExpiry();
+          }
+
+          showSeatsToInsert.push(doc);
+          statusCount[status]++;
           totalSeatsCreated++;
         }
-
-        // Generate layout pattern for this row/show combination
-        const layoutPattern = generateLayoutPattern(
-          rowLayout.seats,
-          bookedSeatsForThisRow
-        );
-
-        // Store unique key for tracking updates
-        const updateKey = `${screen._id}-${rowLayout.label}`;
-        screenUpdates[updateKey] = layoutPattern;
       }
 
-      // Log progress every 500 shows
-      if (shows.indexOf(show) % 500 === 0) {
-        console.log(`  Processing show ${shows.indexOf(show) + 1}/${shows.length}...`);
+      if (i % 500 === 0) {
+        console.log(`  Processing show ${i + 1}/${shows.length}...`);
       }
     }
 
-    console.log(`\nGenerated ${totalSeatsCreated} seat records\n`);
+    console.log(`\nGenerated ${totalSeatsCreated} seat records`);
+    console.log(`Skipped ${skippedShows} shows (screen not found)\n`);
 
-    // Update screens with layout patterns
-    console.log("Updating screen layouts...");
-    let layoutsUpdated = 0;
-    for (const screen of screens) {
-      const updatedRows = screen.rows.map((row) => {
-        const key = `${screen._id}-${row.label}`;
-        if (screenUpdates[key]) {
-          row.layout = screenUpdates[key];
-          layoutsUpdated++;
-        }
-        return row;
-      });
-
-      await Screen.findByIdAndUpdate(screen._id, { rows: updatedRows });
-    }
-    console.log(`Updated ${layoutsUpdated} row layouts\n`);
-
-    // Insert seats in batches to avoid memory issues
+    // Insert in batches
     const BATCH_SIZE = 5000;
     console.log(`Inserting seats in batches of ${BATCH_SIZE}...\n`);
 
     for (let i = 0; i < showSeatsToInsert.length; i += BATCH_SIZE) {
       const batch = showSeatsToInsert.slice(i, i + BATCH_SIZE);
       await ShowSeat.insertMany(batch);
-
       const progress = Math.min(i + BATCH_SIZE, showSeatsToInsert.length);
       console.log(`  ✓ Inserted ${progress}/${totalSeatsCreated} seats`);
     }
 
     console.log(`\n✅ Successfully created ${totalSeatsCreated} show seats\n`);
 
-    // Display stats
-    const stats = await ShowSeat.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
+    // Stats
     console.log("Seat Status Distribution:");
-    stats.forEach((stat) => {
-      const percentage = ((stat.count / totalSeatsCreated) * 100).toFixed(1);
-      console.log(`  ${stat._id}: ${stat.count} (${percentage}%)`);
+    Object.entries(statusCount).forEach(([status, count]) => {
+      const pct = ((count / totalSeatsCreated) * 100).toFixed(1);
+      console.log(`  ${status}: ${count} (${pct}%)`);
     });
 
-    // Sample layout display
-    const sampleScreen = await Screen.findOne().lean();
-    if (sampleScreen && sampleScreen.rows.length > 0) {
-      console.log("\nSample Layout Patterns:");
-      sampleScreen.rows.slice(0, 3).forEach((row) => {
-        console.log(`  Row ${row.label}: ${row.layout}`);
-      });
+    // Sample verification
+    console.log("\nSample ShowSeat documents:");
+    const samples = await ShowSeat.find().limit(5).lean();
+    samples.forEach((s, idx) => {
+      console.log(`\n  [${idx + 1}] Show: ${s.show} | Seat: ${s.seatId} | Status: ${s.status} | Price: ₹${s.price}`);
+      if (s.status === "locked") {
+        console.log(`       LockedBy: ${s.lockedBy} | Expires: ${s.lockedExpiresAt}`);
+      }
+    });
+
+    // Verify one locked seat sample
+    const lockedSample = await ShowSeat.findOne({ status: "locked" }).lean();
+    if (lockedSample) {
+      console.log(`\n✅ Locked seat sample:`);
+      console.log(`   Show: ${lockedSample.show}`);
+      console.log(`   Seat: ${lockedSample.seatId}`);
+      console.log(`   LockedBy: ${lockedSample.lockedBy}`);
+      console.log(`   Expires: ${lockedSample.lockedExpiresAt}`);
     }
+
+    // Verify show reference
+    const validShow = await Show.findById(samples[0]?.show);
+    console.log(`\n${validShow ? "✅" : "❌"} Show reference ${validShow ? "valid" : "INVALID"}: ${samples[0]?.show}`);
 
     console.log("\n==============================");
     console.log("SHOW SEAT SEEDING COMPLETED");
@@ -180,5 +182,4 @@ async function seedShowSeats() {
   }
 }
 
-// Run seeder
 seedShowSeats();

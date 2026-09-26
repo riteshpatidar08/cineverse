@@ -12,11 +12,13 @@ function formatDuration(mins) {
 }
 
 function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).toUpperCase();
+  return new Date(iso)
+    .toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })
+    .toUpperCase();
 }
 
 function getUniqueDates(theaters) {
@@ -36,7 +38,15 @@ function showsForDate(shows, dateStr) {
 /* ─── movie header ─────────────────────────────────────── */
 function MovieHeader({ movie }) {
   if (!movie) return null;
-  const { title, poster, censorRating, duration, language, genres = [], releaseDate } = movie;
+  const {
+    title,
+    poster,
+    censorRating,
+    duration,
+    language,
+    genres = [],
+    releaseDate,
+  } = movie;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : null;
 
   return (
@@ -44,17 +54,30 @@ function MovieHeader({ movie }) {
       <div className="max-w-6xl mx-auto flex items-start gap-5">
         {/* poster */}
         <div className="shrink-0 w-20 h-28 rounded-lg overflow-hidden shadow-md bg-gray-100">
-          {poster
-            ? <img src={poster} alt={title} className="w-full h-full object-cover" />
-            : <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">img</div>
-          }
+          {poster ? (
+            <img
+              src={poster}
+              alt={title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
+              img
+            </div>
+          )}
         </div>
 
         {/* info */}
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <h1 className="text-2xl font-extrabold text-gray-900 leading-tight m-0">{title}</h1>
-            {year && <span className="text-sm font-normal text-gray-500">({year})</span>}
+            <h1 className="text-2xl font-extrabold text-gray-900 leading-tight m-0">
+              {title}
+            </h1>
+            {year && (
+              <span className="text-sm font-normal text-gray-500">
+                ({year})
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1 text-xs text-gray-600 flex-wrap">
@@ -71,8 +94,12 @@ function MovieHeader({ movie }) {
             )}
           </div>
 
-          {language && <p className="text-xs text-gray-600 font-medium">{language}</p>}
-          {genres.length > 0 && <p className="text-xs text-gray-500">{genres.join(', ')}</p>}
+          {language && (
+            <p className="text-xs text-gray-600 font-medium">{language}</p>
+          )}
+          {genres.length > 0 && (
+            <p className="text-xs text-gray-500">{genres.join(', ')}</p>
+          )}
         </div>
       </div>
     </div>
@@ -89,8 +116,12 @@ function CensorBanner({ rating }) {
         A
       </span>
       <div>
-        <p className="text-sm font-semibold text-gray-900">Movie suitable for adults (18+ years) only</p>
-        <p className="text-xs text-gray-600 mt-1">Please carry your IDs with birth date for verification</p>
+        <p className="text-sm font-semibold text-gray-900">
+          Movie suitable for adults (18+ years) only
+        </p>
+        <p className="text-xs text-gray-600 mt-1">
+          Please carry your IDs with birth date for verification
+        </p>
       </div>
     </div>
   );
@@ -101,7 +132,20 @@ function DateStrip({ dates, selected, onSelect }) {
   if (!dates.length) return null;
 
   const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const MONTH = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const MONTH = [
+    'JAN',
+    'FEB',
+    'MAR',
+    'APR',
+    'MAY',
+    'JUN',
+    'JUL',
+    'AUG',
+    'SEP',
+    'OCT',
+    'NOV',
+    'DEC',
+  ];
 
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-10 mt-5">
@@ -124,13 +168,18 @@ function DateStrip({ dates, selected, onSelect }) {
               key={d}
               onClick={() => onSelect(d)}
               className={`shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all cursor-pointer border text-sm
-                ${isActive
-                  ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-                  : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                ${
+                  isActive
+                    ? 'bg-gray-900 text-white border-gray-900 shadow-md'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
                 }`}
             >
               <span className="font-bold leading-none">{day}</span>
-              <span className={`text-[9px] font-semibold mt-0.5 ${isActive ? 'text-gray-300' : 'text-gray-400'}`}>
+              <span
+                className={`text-[9px] font-semibold mt-0.5 ${
+                  isActive ? 'text-gray-300' : 'text-gray-400'
+                }`}
+              >
                 {dayName}
               </span>
             </button>
@@ -150,7 +199,8 @@ function LegendBar() {
           <span className="h-2.5 w-2.5 rounded-full bg-gray-900" /> Available
         </span>
         <span className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" /> Filling fast
+          <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" /> Filling
+          fast
         </span>
         <span className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-red-500" /> Almost full
@@ -164,18 +214,23 @@ function LegendBar() {
 function ShowTimeButton({ shows, movieId, movieName }) {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  
+
   // All shows have the same time, just pick the first one
   const firstShow = shows[0];
   const time = formatTime(firstShow.startTime);
 
   // Collect all unique categories from all shows
   const allCategories = new Set();
-  shows.forEach(show => {
-    show.categoryPricing?.forEach(cp => allCategories.add(cp.category));
+
+  shows.forEach((show) => {
+    console.log(show)
+   return show.categoryPricing?.forEach((cp) => allCategories.add(cp.category));
   });
+
+  console.log(allCategories)
   const categoryList = Array.from(allCategories).join(', ');
 
+console.log(categoryList)
   const borderColor = 'border-gray-200 hover:border-gray-400';
   const textColor = 'text-gray-800';
 
@@ -198,7 +253,7 @@ function ShowTimeButton({ shows, movieId, movieName }) {
         >
           <span className="text-sm font-semibold">{time}</span>
         </button>
-        
+
         {/* Tooltip on hover - show categories */}
         {categoryList && (
           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none z-10 shadow-lg">
@@ -210,40 +265,57 @@ function ShowTimeButton({ shows, movieId, movieName }) {
 
       {/* Modal for selecting screen */}
       {showModal && shows.length > 1 && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           onClick={() => setShowModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">Select Screen</h3>
-              <button 
+              <button
                 onClick={() => setShowModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
-            
-            <p className="text-sm text-gray-600 mb-4">Show time: <span className="font-semibold">{time}</span></p>
-            
+
+            <p className="text-sm text-gray-600 mb-4">
+              Show time: <span className="font-semibold">{time}</span>
+            </p>
+
             <div className="space-y-2">
               {shows.map((show) => {
-                const categories = show.categoryPricing?.map(c => c.category).join(', ') || '';
+                const categories =
+                  show.categoryPricing?.map((c) => c.category).join(', ') || '';
                 return (
                   <button
                     key={show._id}
                     onClick={() => navigate(`/seat-select/${show._id}`)}
                     className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
                   >
-                    <div className="font-semibold text-gray-900">{show.screenName}</div>
+                    <div className="font-semibold text-gray-900">
+                      {show.screenName}
+                    </div>
                     {categories && (
-                      <div className="text-xs text-gray-500 mt-1">{categories}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {categories}
+                      </div>
                     )}
                   </button>
                 );
@@ -275,8 +347,8 @@ function TheaterCard({ theaterData, selectedDate, movieId, movieName }) {
 
   // Sort times chronologically
   const sortedTimes = Object.keys(groupedByTime).sort((a, b) => {
-    const timeA = filtered.find(s => formatTime(s.startTime) === a).startTime;
-    const timeB = filtered.find(s => formatTime(s.startTime) === b).startTime;
+    const timeA = filtered.find((s) => formatTime(s.startTime) === a).startTime;
+    const timeB = filtered.find((s) => formatTime(s.startTime) === b).startTime;
     return new Date(timeA) - new Date(timeB);
   });
 
@@ -295,13 +367,25 @@ function TheaterCard({ theaterData, selectedDate, movieId, movieName }) {
             <h3 className="text-sm font-extrabold text-gray-900 leading-tight">
               {theater.name}
               {theater.city && (
-                <span className="font-semibold text-gray-600">, {theater.city}</span>
+                <span className="font-semibold text-gray-600">
+                  , {theater.city}
+                </span>
               )}
             </h3>
           </div>
           <button className="shrink-0 text-gray-300 hover:text-red-500 transition-colors cursor-pointer">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
             </svg>
           </button>
         </div>
@@ -358,9 +442,24 @@ export default function BookingPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-2">
-          <svg className="h-8 w-8 animate-spin text-[#471b8e]" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          <svg
+            className="h-8 w-8 animate-spin text-[#471b8e]"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            />
           </svg>
           <p className="text-xs text-gray-500">Finding shows near you…</p>
         </div>
@@ -370,7 +469,6 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* movie header (sticky) */}
       <MovieHeader movie={movie} />
 
@@ -395,11 +493,25 @@ export default function BookingPage() {
       <div className="max-w-6xl mx-auto px-4 md:px-10 mt-6 mb-10 space-y-3">
         {!theaters.length ? (
           <div className="py-16 text-center">
-            <svg className="h-12 w-12 text-gray-200 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4" />
+            <svg
+              className="h-12 w-12 text-gray-200 mx-auto mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4"
+              />
             </svg>
-            <p className="text-gray-500 font-semibold text-sm">No shows available.</p>
-            <p className="text-gray-400 text-xs mt-1">Try a different date or check back later.</p>
+            <p className="text-gray-500 font-semibold text-sm">
+              No shows available.
+            </p>
+            <p className="text-gray-400 text-xs mt-1">
+              Try a different date or check back later.
+            </p>
           </div>
         ) : (
           theaters.map((t, i) => (
@@ -413,7 +525,6 @@ export default function BookingPage() {
           ))
         )}
       </div>
-
     </div>
   );
 }
