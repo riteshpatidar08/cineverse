@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { register } from '../services/auth.api.js';
-import { Card, CardFooter } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Switch } from '../components/ui/Switch';
-import { Tooltip } from '../components/ui/Tooltip';
-import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/Avatar';
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -19,7 +13,6 @@ function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [agreeTerms, setAgreeTerms] = useState(true);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,17 +28,11 @@ function Signup() {
       return;
     }
 
-    if (!agreeTerms) {
-      setErrorMessage('You must agree to the terms and conditions');
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      const res = await register(formData);
-      console.log(res);
-      setSuccessMessage('Registration successful! Welcome to cineVerse.');
+      await register(formData);
+      setSuccessMessage('Registration successful! You can now log in.');
     } catch (error) {
       console.error(error);
       setErrorMessage(error.response?.data?.message || 'Something went wrong. Please try again.');
@@ -55,142 +42,285 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 md:p-8 bg-white text-[#4a3e56] font-sans">
-      <div className="w-full max-w-lg space-y-6">
-        
-        {/* Brand Header */}
-        <div className="flex flex-col items-center space-y-2">
-          <Link to="/" className="flex flex-col items-center decoration-none group">
-            <Avatar className="h-12 w-12 border border-[#e5e0f2] shadow-sm transition-transform duration-300 group-hover:scale-105">
-              <AvatarImage src="/logo.jpg" alt="cineVerse logo" className="object-cover" />
-              <AvatarFallback className="font-bold bg-[#471b8e]/10 text-[#471b8e] text-xs">CV</AvatarFallback>
-            </Avatar>
-            <h2 className="text-2xl font-extrabold mt-2 text-[#230d56] tracking-tight">cineVerse</h2>
-          </Link>
-        </div>
-
-        {/* Minimalist Centered Form Card */}
-        <Card className="w-full shadow-lg p-6 md:p-8 border border-[#e5e0f2] bg-white rounded-3xl">
-          <div className="text-left mb-6">
-            <h2 className="text-2xl font-bold text-[#230d56] mb-1">Get Started</h2>
-            <p className="text-xs text-[#4a3e56]/75">Fill in your details below to set up your account</p>
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', width: '100%', display: 'flex', flexWrap: 'wrap', color: 'var(--text)' }}>
+      
+      {/* Left Full-Viewport Offer Section */}
+      <div
+        style={{
+          flex: '1 1 450px',
+          background: 'linear-gradient(135deg, var(--bg-2) 0%, rgba(71,27,142,0.06) 100%)',
+          borderRight: '1px solid var(--border)',
+          padding: '60px 48px',
+          display: 'flex',
+          flexDirection: 'column',
+          justify: 'space-between',
+          minHeight: '100vh',
+          boxSizing: 'border-box',
+        }}
+      >
+        <div>
+          {/* Brand Header */}
+          <div style={{ marginBottom: 32 }}>
+            <Link to="/" style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-h)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 800 }}>
+                CV
+              </div>
+              cineVerse
+            </Link>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', background: 'var(--primary)', color: '#fff', padding: '4px 12px', borderRadius: 20, letterSpacing: '0.6px', display: 'inline-block' }}>
+                Welcome Pass Voucher
+              </span>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 800, color: 'var(--text-h)', lineHeight: 1.2, margin: '0 0 16px 0', letterSpacing: '-0.8px' }}>
+            Join CineVerse &amp; Get ₹100 Off Your First Ticket
+          </h1>
+
+          <p style={{ fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.6, margin: '0 0 36px 0', maxWidth: 460 }}>
+            Create your free account in 30 seconds to unlock priority premiere seat booking, food &amp; beverage combos, and loyalty cashbacks.
+          </p>
+
+          {/* Offers list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 24, lineHeight: 1, background: 'var(--bg)', padding: 10, borderRadius: 10, border: '1px solid var(--border)' }}>🎬</span>
+              <div>
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-h)', margin: 0 }}>Flat ₹100 Discount Voucher</h4>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Instant welcome code applied at checkout</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 24, lineHeight: 1, background: 'var(--bg)', padding: 10, borderRadius: 10, border: '1px solid var(--border)' }}>💳</span>
+              <div>
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-h)', margin: 0 }}>Partner Bank Cashback Perks</h4>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Save extra with HDFC, ICICI, SBI &amp; Paytm UPI</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 24, lineHeight: 1, background: 'var(--bg)', padding: 10, borderRadius: 10, border: '1px solid var(--border)' }}>🛡️</span>
+              <div>
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-h)', margin: 0 }}>Zero Booking Fee &amp; Instant Refunds</h4>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Hassle-free ticket changes &amp; seat swaps</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', borderTop: '1px solid var(--border)', paddingTop: 20, marginTop: 40 }}>
+          Join 2,000,000+ movie lovers booking with CineVerse
+        </div>
+      </div>
+
+      {/* Right Form Section */}
+      <div
+        style={{
+          flex: '1 1 400px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justify: 'center',
+          padding: '60px 32px',
+          minHeight: '100vh',
+          boxSizing: 'border-box',
+          background: 'var(--bg)',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 400 }}>
+          <div style={{ marginBottom: 28, textAlign: 'left' }}>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-h)', margin: 0 }}>Create Free Account</h2>
+            <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 6 }}>Enter details below to set up your profile</p>
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             {errorMessage && (
-              <div className="border border-red-200 bg-red-50 text-red-600 p-3 rounded-xl text-xs font-semibold text-left">
+              <div style={{ fontSize: 13, color: 'var(--accent)', background: '#ff475712', padding: '12px 16px', borderRadius: 8, border: '1px solid #ff475730' }}>
                 {errorMessage}
               </div>
             )}
             {successMessage && (
-              <div className="border border-emerald-200 bg-emerald-50 text-emerald-700 p-3 rounded-xl text-xs font-semibold text-left">
+              <div style={{ fontSize: 13, color: '#22c55e', background: '#22c55e12', padding: '12px 16px', borderRadius: 8, border: '1px solid #22c55e30' }}>
                 {successMessage}
               </div>
             )}
 
-            {/* Full Name */}
-            <div className="text-left space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#230d56]/70 block">Full Name</label>
-              <Input
-                required
-                onChange={handleChange}
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Enter your full name"
-                value={formData.name}
-              />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left' }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Full Name</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <svg
+                  width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+                  style={{ position: 'absolute', left: 14, color: 'var(--text-muted)', pointerEvents: 'none' }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <input
+                  required
+                  onChange={handleChange}
+                  type="text"
+                  name="name"
+                  placeholder="Full name"
+                  value={formData.name}
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: '12px 14px 12px 42px',
+                    color: 'var(--text-h)',
+                    fontSize: 14,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
             </div>
 
-            {/* Email & Mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="text-left space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#230d56]/70 block">Email Address</label>
-                <Input
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left' }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Email Address</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <svg
+                  width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+                  style={{ position: 'absolute', left: 14, color: 'var(--text-muted)', pointerEvents: 'none' }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <input
                   required
                   onChange={handleChange}
                   type="email"
-                  id="email"
                   name="email"
-                  placeholder="name@domain.com"
+                  placeholder="name@example.com"
                   value={formData.email}
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: '12px 14px 12px 42px',
+                    color: 'var(--text-h)',
+                    fontSize: 14,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
                 />
               </div>
-              <div className="text-left space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#230d56]/70 block">Mobile Number</label>
-                <Input
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left' }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Mobile Number</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <svg
+                  width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+                  style={{ position: 'absolute', left: 14, color: 'var(--text-muted)', pointerEvents: 'none' }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <input
                   required
                   onChange={handleChange}
                   type="tel"
-                  id="mobile"
                   name="mobileNo"
-                  placeholder="10-digit number"
+                  placeholder="10-digit mobile number"
                   value={formData.mobileNo}
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: '12px 14px 12px 42px',
+                    color: 'var(--text-h)',
+                    fontSize: 14,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
                 />
               </div>
             </div>
 
-            {/* Password & Confirm Password */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="text-left space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#230d56]/70 block">Password</label>
-                  <Tooltip content="Minimum 6 characters" position="top">
-                    <span className="text-[9px] text-[#471b8e] font-bold hover:underline cursor-help">Info</span>
-                  </Tooltip>
-                </div>
-                <Input
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left' }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Password</label>
+                <input
                   required
                   onChange={handleChange}
                   type="password"
-                  id="password"
                   name="password"
                   placeholder="••••••••"
                   value={formData.password}
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: '12px',
+                    color: 'var(--text-h)',
+                    fontSize: 14,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
                 />
               </div>
-              <div className="text-left space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#230d56]/70 block">Confirm Password</label>
-                <Input
+
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left' }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Confirm</label>
+                <input
                   required
                   onChange={handleChange}
                   type="password"
-                  id="confirmPassword"
                   name="confirmPassword"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: '12px',
+                    color: 'var(--text-h)',
+                    fontSize: 14,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
                 />
               </div>
             </div>
 
-            {/* Terms Switch */}
-            <div className="flex items-center gap-3 pt-1 text-left">
-              <Switch checked={agreeTerms} onCheckedChange={setAgreeTerms} id="agree-terms" />
-              <label htmlFor="agree-terms" className="text-xs text-[#230d56] cursor-pointer select-none font-medium">
-                I agree to the <Link to="/terms" className="text-[#471b8e] hover:underline font-bold decoration-none">Terms of Service</Link> and <Link to="/privacy" className="text-[#471b8e] hover:underline font-bold decoration-none">Privacy Policy</Link>
-              </label>
-            </div>
-
-            {/* Submit Button */}
-            <Button
+            <button
               type="submit"
-              className="w-full py-2.5 bg-[#230d56] hover:bg-[#351371] text-white shadow-md font-bold uppercase tracking-wider text-xs mt-6 h-11 rounded-xl cursor-pointer"
-              loading={isSubmitting}
+              disabled={isSubmitting}
+              style={{
+                marginTop: 8,
+                padding: '14px',
+                borderRadius: 8,
+                background: 'var(--primary)',
+                color: '#fff',
+                border: 'none',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                width: '100%',
+                boxShadow: '0 4px 14px rgba(71,27,142,0.25)',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--primary)')}
             >
-              Sign Up Now
-            </Button>
+              {isSubmitting ? 'Creating account...' : 'Create Account'}
+            </button>
           </form>
 
-          <CardFooter className="flex-col gap-3 p-0 mt-6 pt-6 border-t border-[#e5e0f2]">
-            <div className="text-center text-xs text-[#4a3e56]/70 font-medium">
-              Already have an account?{' '}
-              <Link to="/login" className="text-[#471b8e] font-bold hover:underline decoration-none">
-                Log In
-              </Link>
-            </div>
-          </CardFooter>
-        </Card>
+          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border)', textAlign: 'center', fontSize: 14, color: 'var(--text-muted)' }}>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>
+              Log In
+            </Link>
+          </div>
+        </div>
       </div>
+
     </div>
   );
 }

@@ -1,262 +1,387 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Button } from './ui/Button';
-import { Avatar, AvatarImage, AvatarFallback } from './ui/Avatar';
 import { useSelector, useDispatch } from 'react-redux';
 import { authenticated } from '../../redux/slices/authSlice';
 import { getCityAndState } from '../../redux/slices/locationSlice';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { MapPin, ChevronDown, LogOut, Menu, X, Film } from 'lucide-react';
 
 export default function Navbar() {
-  // const [currentLoc, setCurrentLoc] = useState('');
-
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { isAuthenticated, name, email, role } = useSelector((state) => state.auth);
-  const { currentCity , currentState } = useSelector((state) => state.location);
-console.log(currentCity , currentState)
+  const { isAuthenticated, name, email, role } = useSelector((s) => s.auth);
+  const { currentCity } = useSelector((s) => s.location);
+
   async function getDistrict(lat, lon) {
-    const res = await axios.get(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
-    );
-    const city = res.data?.address?.state_district;
-    const state = res.data?.address?.state;
-    return { city, state };
+    try {
+      const res = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+      );
+      return {
+        city: res.data?.address?.state_district || res.data?.address?.city || res.data?.address?.town,
+        state: res.data?.address?.state,
+      };
+    } catch {
+      return { city: null, state: null };
+    }
   }
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude, longitude } = position.coords;
-      console.log(latitude  , longitude)
-      getDistrict(latitude, longitude).then(({ city, state }) => {
-       dispatch(getCityAndState({city , state , latitude , longitude}))
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const { latitude, longitude } = pos.coords;
+        getDistrict(latitude, longitude).then(({ city, state }) => {
+          if (city) {
+            dispatch(getCityAndState({ city, state, latitude, longitude }));
+          }
+        });
       });
-    }),    {
-      enableHighAccuracy: false, 
-      timeout: 5000,
-      maximumAge: 600000
-  } 
-  }, []);
+    }
+  }, [dispatch]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(e) {
+    function handleOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
-
-  const [isDark, setIsDark] = useState(() => {
-    return (
-      document.documentElement.classList.contains('dark') ||
-      localStorage.getItem('theme') === 'dark'
-    );
-  });
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDark]);
 
   function handleLogout() {
     Cookies.remove('id');
     Cookies.remove('email');
     Cookies.remove('role');
     Cookies.remove('isAuthenticated');
-    dispatch(
-      authenticated({ id: '', name: '', email: '', role: '', isAuthenticated: null })
-    );
+    dispatch(authenticated({ id: '', name: '', email: '', role: '', isAuthenticated: null }));
     setDropdownOpen(false);
+    setMobileMenuOpen(false);
     navigate('/');
   }
 
-  const navLinks = [
-    { name: 'Browse', path: '/browse' },
-    { name: 'Movies', path: '/movies' },
-    { name: 'TV Shows', path: '/tv' },
-    { name: 'Pricing', path: '/pricing' },
-  ];
-
-  // Initials fallback for avatar
   const initials = name
-    ? name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+    ? name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
 
+  const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Movies', path: '/movies' },
+  ];
+
   return (
-    <nav className="sticky top-0 z-50 w-full glass border-x-0 border-t-0 border-b border-white/10 dark:border-white/5 py-3 px-4 md:px-8 flex justify-between items-center transition-all duration-300">
-
-      {/* Brand Logo & Name + Location */}
-      <div className="flex items-center gap-3">
-        <Link to="/" className="flex items-center gap-2 group decoration-none">
-          <Avatar className="h-9 w-9 ring-1 ring-primary/30 group-hover:ring-primary/60 transition-all duration-300">
-            <AvatarImage src="/logo.jpg" alt="cineVerse logo" className="object-cover" />
-            <AvatarFallback className="font-bold bg-primary/20 text-primary text-xs">CV</AvatarFallback>
-          </Avatar>
-          <span className="text-lg font-bold tracking-wider text-text-h">Cineverse</span>
-        </Link>
-
-        {/* Divider + Location */}
-        {currentCity && (
-          <>
-            <div className="h-8 w-px bg-white/20 dark:bg-white/10" />
-            <div className="hidden md:flex items-center gap-1.5">
-              <svg className="h-4 w-4 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-bold text-text-h">{currentCity}</span>
-                {currentState && (
-                  <span className="text-xs text-primary/80">{currentCity}, {currentState}</span>
-                )}
-              </div>
+    <nav
+      style={{
+        background: 'var(--bg)',
+        borderBottom: '1px solid var(--border)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        backdropFilter: 'blur(10px)',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1280,
+          margin: '0 auto',
+          padding: '0 16px',
+          height: 56,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 20,
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Left Side: Logo + Location */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <Link
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}
+          >
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                overflow: 'hidden',
+                background: 'var(--primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(71,27,142,0.2)',
+              }}
+            >
+              <img
+                src="/logo.jpg"
+                alt="CV"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentNode.innerHTML = '<span style="color:#fff;font-weight:800;font-size:14px">CV</span>';
+                }}
+              />
             </div>
-          </>
-        )}
+            <span style={{ fontSize: 17, fontWeight: 800, color: 'var(--text-h)', letterSpacing: '-0.4px' }}>
+              cineVerse
+            </span>
+          </Link>
+
+          {/* Location Badge */}
+          {currentCity && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                background: 'var(--bg-3)',
+                border: '1px solid var(--border)',
+                borderRadius: 20,
+                padding: '3px 10px',
+                fontSize: 12,
+                color: 'var(--text-h)',
+                fontWeight: 600,
+              }}
+            >
+              <MapPin size={13} color="var(--primary)" />
+              <span>{currentCity}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Nav Links */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+          className="hidden-mobile"
+        >
+          {navLinks.map((link) => {
+            const active = location.pathname === link.path;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: active ? 700 : 500,
+                  color: active ? 'var(--primary)' : 'var(--text)',
+                  background: active ? 'rgba(71,27,142,0.08)' : 'transparent',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Right Side: Auth / Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {isAuthenticated ? (
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen((p) => !p)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'var(--bg-3)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 20,
+                  padding: '4px 12px 4px 4px',
+                  cursor: 'pointer',
+                  color: 'var(--text-h)',
+                }}
+              >
+                <div
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: '50%',
+                    background: 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: '#fff',
+                  }}
+                >
+                  {initials}
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{name?.split(' ')[0]}</span>
+                <ChevronDown
+                  size={14}
+                  style={{
+                    transform: dropdownOpen ? 'rotate(180deg)' : 'none',
+                    transition: 'transform 0.15s',
+                    color: 'var(--text-muted)',
+                  }}
+                />
+              </button>
+
+              {dropdownOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: 'calc(100% + 8px)',
+                    width: 220,
+                    background: 'var(--bg)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+                    zIndex: 100,
+                  }}
+                >
+                  <div style={{ padding: '14px', borderBottom: '1px solid var(--border)', background: 'var(--bg-2)' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-h)' }}>{name}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{email}</div>
+                    {role && (
+                      <span
+                        style={{
+                          marginTop: 6,
+                          display: 'inline-block',
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: 4,
+                          background: 'var(--bg-3)',
+                          color: 'var(--primary)',
+                          border: '1px solid var(--border)',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        {role}
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ padding: '4px' }}>
+                    <button
+                      onClick={handleLogout}
+                      style={{
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '10px 12px',
+                        fontSize: 13,
+                        color: 'var(--accent)',
+                        fontWeight: 600,
+                        background: 'none',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-3)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <LogOut size={14} />
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Link
+                to="/login"
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--text-h)',
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg)',
+                  transition: 'all 0.15s',
+                }}
+              >
+                Log in
+              </Link>
+              <Link
+                to="/signup"
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: '#fff',
+                  background: 'var(--primary)',
+                  border: 'none',
+                  transition: 'all 0.15s',
+                  boxShadow: '0 2px 8px rgba(71,27,142,0.2)',
+                }}
+              >
+                Sign up
+              </Link>
+            </div>
+          )}
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen((p) => !p)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 6,
+              color: 'var(--text-h)',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            aria-label="Toggle Navigation"
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
-      {/* Navigation Links */}
-      <div className="hidden md:flex items-center gap-6">
-        {navLinks.map((link) => {
-          const isActive = location.pathname === link.path;
-          return (
+      {/* Mobile Drawer Menu */}
+      {mobileMenuOpen && (
+        <div
+          style={{
+            background: 'var(--bg)',
+            borderTop: '1px solid var(--border)',
+            padding: '12px 16px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+          }}
+        >
+          {navLinks.map((link) => (
             <Link
               key={link.path}
               to={link.path}
-              className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-300 decoration-none ${
-                isActive ? 'text-primary dark:text-accent' : 'text-text/70 hover:text-text-h'
-              }`}
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                padding: '10px 14px',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                color: location.pathname === link.path ? 'var(--primary)' : 'var(--text-h)',
+                background: location.pathname === link.path ? 'var(--bg-3)' : 'transparent',
+              }}
             >
               {link.name}
             </Link>
-          );
-        })}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center gap-3">
-        {/* Theme Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsDark(!isDark)}
-          className="h-8 w-8 rounded-full border border-white/10 dark:border-white/5 flex items-center justify-center text-text hover:text-text-h"
-          title="Toggle Theme"
-        >
-          {isDark ? (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-            </svg>
-          ) : (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-          )}
-        </Button>
-
-        {/* Auth: Avatar Dropdown or Login/Signup */}
-        {isAuthenticated ? (
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50"
-            >
-              <Avatar className="h-8 w-8 ring-2 ring-primary/40 hover:ring-primary transition-all duration-300">
-                <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <svg
-                className={`h-3.5 w-3.5 text-text/60 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* Dropdown Panel */}
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-xl glass border border-white/10 dark:border-white/5 shadow-xl py-1 z-50">
-                {/* User Info */}
-                <div className="px-4 py-3 border-b border-white/10 dark:border-white/5">
-                  <p className="text-sm font-semibold text-text-h truncate">{name}</p>
-                  <p className="text-xs text-text/60 truncate mt-0.5">{email}</p>
-                 
-                </div>
-
-                {/* Menu Items */}
-                <div className="py-1">
-                  <Link
-                    to="/profile"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-text/80 hover:text-text-h hover:bg-white/5 transition-colors decoration-none"
-                  >
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    My Profile
-                  </Link>
-                  <Link
-                    to="/bookings"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-text/80 hover:text-text-h hover:bg-white/5 transition-colors decoration-none"
-                  >
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
-                    My Bookings
-                  </Link>
-                </div>
-
-                {/* Logout */}
-                <div className="border-t border-white/10 dark:border-white/5 py-1">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-                  >
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Logout
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <>
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="font-bold text-xs uppercase tracking-wider">
-                Log In
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button variant="primary" size="sm" className="font-bold text-xs uppercase tracking-wider h-8">
-                Sign Up
-              </Button>
-            </Link>
-          </>
-        )}
-      </div>
-
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

@@ -3,21 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMovieById, getShows } from '../../redux/slices/moviesSlice';
 
-/* ─── helpers ────────────────────────────────────────────── */
+/* ─── helpers ─────────────────────────────────────────── */
 function formatDuration(mins) {
   if (!mins) return null;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return `${h}h ${m}m`;
+  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
 }
 
 function formatTime(iso) {
   return new Date(iso)
-    .toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    })
+    .toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
     .toUpperCase();
 }
 
@@ -38,283 +32,356 @@ function showsForDate(shows, dateStr) {
 /* ─── movie header ─────────────────────────────────────── */
 function MovieHeader({ movie }) {
   if (!movie) return null;
-  const {
-    title,
-    poster,
-    censorRating,
-    duration,
-    language,
-    genres = [],
-    releaseDate,
-  } = movie;
+  const { title, poster, censorRating, duration, genres = [], releaseDate } = movie;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : null;
 
   return (
-    <div className="bg-white border-b border-gray-100 px-4 md:px-10 py-5 sticky top-0 z-20">
-      <div className="max-w-6xl mx-auto flex items-start gap-5">
-        {/* poster */}
-        <div className="shrink-0 w-20 h-28 rounded-lg overflow-hidden shadow-md bg-gray-100">
-          {poster ? (
-            <img
-              src={poster}
-              alt={title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
-              img
-            </div>
-          )}
-        </div>
+    <div
+      style={{
+        background: 'var(--bg-2)',
+        borderBottom: '1px solid var(--border)',
+        position: 'sticky',
+        top: 56,
+        zIndex: 30,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: '0 auto',
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+        }}
+      >
+        {poster && (
+          <div
+            style={{
+              width: 44,
+              height: 62,
+              borderRadius: 6,
+              overflow: 'hidden',
+              flexShrink: 0,
+              border: '1px solid var(--border)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+            }}
+          >
+            <img src={poster} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        )}
 
-        {/* info */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <h1 className="text-2xl font-extrabold text-gray-900 leading-tight m-0">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+            <h1
+              style={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: 'var(--text-h)',
+                letterSpacing: '-0.3px',
+                margin: 0,
+              }}
+            >
               {title}
             </h1>
             {year && (
-              <span className="text-sm font-normal text-gray-500">
-                ({year})
-              </span>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>({year})</span>
             )}
           </div>
 
-          <div className="flex items-center gap-1 text-xs text-gray-600 flex-wrap">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             {censorRating && (
-              <span className="px-1.5 py-0.5 border border-gray-300 text-gray-700 font-bold rounded">
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: '2px 6px',
+                  borderRadius: 4,
+                  background: 'var(--primary)',
+                  color: '#fff',
+                }}
+              >
                 {censorRating}
               </span>
             )}
             {duration && (
-              <>
-                <span className="text-gray-400">|</span>
-                <span className="font-medium">{formatDuration(duration)}</span>
-              </>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>⏱ {formatDuration(duration)}</span>
+            )}
+            {genres.length > 0 && (
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{genres.join(' · ')}</span>
             )}
           </div>
-
-          {language && (
-            <p className="text-xs text-gray-600 font-medium">{language}</p>
-          )}
-          {genres.length > 0 && (
-            <p className="text-xs text-gray-500">{genres.join(', ')}</p>
-          )}
         </div>
       </div>
     </div>
   );
 }
 
-/* ─── censor warning banner ────────────────────────────── */
-function CensorBanner({ rating }) {
-  if (rating !== 'A') return null;
-
-  return (
-    <div className="max-w-6xl mx-auto px-4 md:px-10 mt-4 rounded-xl px-4 py-3 flex items-start gap-3 bg-yellow-50 border border-yellow-100">
-      <span className="shrink-0 w-8 h-8 rounded-lg bg-yellow-400 flex items-center justify-center text-xs font-extrabold text-white font-bold text-sm">
-        A
-      </span>
-      <div>
-        <p className="text-sm font-semibold text-gray-900">
-          Movie suitable for adults (18+ years) only
-        </p>
-        <p className="text-xs text-gray-600 mt-1">
-          Please carry your IDs with birth date for verification
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ─── date picker ──────────────────────────────────────── */
+/* ─── date strip ──────────────────────────────────────── */
 function DateStrip({ dates, selected, onSelect }) {
   if (!dates.length) return null;
 
   const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const MONTH = [
-    'JAN',
-    'FEB',
-    'MAR',
-    'APR',
-    'MAY',
-    'JUN',
-    'JUL',
-    'AUG',
-    'SEP',
-    'OCT',
-    'NOV',
-    'DEC',
-  ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-10 mt-5">
-      <div className="flex items-center gap-0.5 overflow-x-auto pb-1 scrollbar-none">
-        {/* month label */}
-        {dates[0] && (
-          <span className="shrink-0 text-[10px] font-bold text-gray-400 uppercase tracking-widest mr-2 self-end pb-0.5">
-            {MONTH[new Date(dates[0]).getMonth()]}
-          </span>
-        )}
-
-        {dates.map((d) => {
-          const dt = new Date(d);
-          const day = dt.getDate();
-          const dayName = DAY[dt.getDay()];
-          const isActive = d === selected;
-
-          return (
-            <button
-              key={d}
-              onClick={() => onSelect(d)}
-              className={`shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all cursor-pointer border text-sm
-                ${
-                  isActive
-                    ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
-                }`}
+    <div
+      style={{
+        maxWidth: 1100,
+        margin: '0 auto',
+        padding: '16px 16px 0',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        overflowX: 'auto',
+      }}
+    >
+      {dates.map((d) => {
+        const dt = new Date(d);
+        const active = d === selected;
+        return (
+          <button
+            key={d}
+            onClick={() => onSelect(d)}
+            style={{
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '8px 16px',
+              borderRadius: 8,
+              border: active ? '1px solid var(--primary)' : '1px solid var(--border)',
+              background: active ? 'var(--primary)' : 'var(--bg-2)',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+              gap: 2,
+              minWidth: 60,
+              boxShadow: active ? '0 4px 12px rgba(71,27,142,0.2)' : 'none',
+            }}
+          >
+            <span
+              style={{
+                fontSize: 16,
+                fontWeight: 800,
+                color: active ? '#fff' : 'var(--text-h)',
+                lineHeight: 1,
+              }}
             >
-              <span className="font-bold leading-none">{day}</span>
-              <span
-                className={`text-[9px] font-semibold mt-0.5 ${
-                  isActive ? 'text-gray-300' : 'text-gray-400'
-                }`}
-              >
-                {dayName}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+              {dt.getDate()}
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: active ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              {DAY[dt.getDay()]}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-/* ─── availability legend ──────────────────────────────── */
+/* ─── legend ───────────────────────────────────────────── */
 function LegendBar() {
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-10 mt-4">
-      <div className="flex items-center gap-6 py-3 px-4 rounded-lg bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-600 w-fit">
-        <span className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-gray-900" /> Available
+    <div
+      style={{
+        maxWidth: 1100,
+        margin: '0 auto',
+        padding: '12px 16px 0',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 20,
+      }}
+    >
+      {[
+        { dot: '#22c55e', label: 'Available' },
+        { dot: '#f59e0b', label: 'Filling fast' },
+        { dot: '#ff4757', label: 'Almost full' },
+      ].map(({ dot, label }) => (
+        <span
+          key={label}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}
+        >
+          <span
+            style={{ width: 8, height: 8, borderRadius: '50%', background: dot, display: 'inline-block' }}
+          />
+          {label}
         </span>
-        <span className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" /> Filling
-          fast
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-red-500" /> Almost full
-        </span>
-      </div>
+      ))}
     </div>
   );
 }
 
-/* ─── show time button with screen selector ─────────────── */
-function ShowTimeButton({ shows, movieId, movieName }) {
+/* ─── show time button ─────────────────────────────────── */
+function ShowTimeButton({ shows }) {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
-  // All shows have the same time, just pick the first one
   const firstShow = shows[0];
   const time = formatTime(firstShow.startTime);
 
-  // Collect all unique categories from all shows
-  const allCategories = new Set();
-
-  shows.forEach((show) => {
-    console.log(show)
-   return show.categoryPricing?.forEach((cp) => allCategories.add(cp.category));
-  });
-
-  console.log(allCategories)
-  const categoryList = Array.from(allCategories).join(', ');
-
-console.log(categoryList)
-  const borderColor = 'border-gray-200 hover:border-gray-400';
-  const textColor = 'text-gray-800';
+  const allCategories = [...new Set(shows.flatMap((s) => s.categoryPricing?.map((cp) => cp.category) || []))];
 
   const handleClick = () => {
-    // If only one screen, navigate directly
     if (shows.length === 1) {
       navigate(`/seat-select/${shows[0]._id}`);
     } else {
-      // Multiple screens - show modal
       setShowModal(true);
     }
   };
 
   return (
     <>
-      <div className="relative group">
+      <div style={{ position: 'relative' }}>
         <button
           onClick={handleClick}
-          className={`flex items-center justify-center px-4 py-2.5 rounded-lg border transition-all cursor-pointer min-w-[90px] text-center ${borderColor} ${textColor}`}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 8,
+            border: `1px solid ${hovered ? 'var(--primary)' : 'var(--border)'}`,
+            background: hovered ? 'rgba(71,27,142,0.06)' : 'var(--bg)',
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            fontSize: 13,
+            fontWeight: 700,
+            color: hovered ? 'var(--primary)' : 'var(--text-h)',
+            whiteSpace: 'nowrap',
+          }}
         >
-          <span className="text-sm font-semibold">{time}</span>
+          {time}
         </button>
 
-        {/* Tooltip on hover - show categories */}
-        {categoryList && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none z-10 shadow-lg">
-            {categoryList}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 border-4 border-transparent border-t-gray-900"></div>
+        {/* Tooltip */}
+        {hovered && allCategories.length > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 'calc(100% + 6px)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'var(--text-h)',
+              borderRadius: 6,
+              padding: '6px 12px',
+              fontSize: 11,
+              fontWeight: 600,
+              color: '#fff',
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              zIndex: 20,
+              boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+            }}
+          >
+            {allCategories.join(' · ')}
           </div>
         )}
       </div>
 
-      {/* Modal for selecting screen */}
+      {/* Screen selector modal */}
       {showModal && shows.length > 1 && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           onClick={() => setShowModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+          }}
         >
           <div
-            className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--bg)',
+              border: '1px solid var(--border)',
+              borderRadius: 14,
+              padding: 24,
+              width: '100%',
+              maxWidth: 420,
+              margin: '0 16px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+            }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Select Screen</h3>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 18,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-h)' }}>
+                  Select Screen Format
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>
+                  Showtime: <strong>{time}</strong>
+                </div>
+              </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                style={{
+                  background: 'var(--bg-3)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 20,
+                  width: 28,
+                  height: 28,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  fontSize: 14,
+                }}
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                ✕
               </button>
             </div>
 
-            <p className="text-sm text-gray-600 mb-4">
-              Show time: <span className="font-semibold">{time}</span>
-            </p>
-
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {shows.map((show) => {
-                const categories =
-                  show.categoryPricing?.map((c) => c.category).join(', ') || '';
+                const cats = show.categoryPricing?.map((c) => `${c.category}: ₹${c.price}`).join(' · ') || '';
                 return (
                   <button
                     key={show._id}
                     onClick={() => navigate(`/seat-select/${show._id}`)}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
+                    style={{
+                      textAlign: 'left',
+                      padding: '12px 16px',
+                      borderRadius: 10,
+                      border: '1px solid var(--border)',
+                      background: 'var(--bg-2)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      width: '100%',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--primary)';
+                      e.currentTarget.style.background = 'rgba(71,27,142,0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border)';
+                      e.currentTarget.style.background = 'var(--bg-2)';
+                    }}
                   >
-                    <div className="font-semibold text-gray-900">
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-h)' }}>
                       {show.screenName}
                     </div>
-                    {categories && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        {categories}
+                    {cats && (
+                      <div style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 600, marginTop: 4 }}>
+                        {cats}
                       </div>
                     )}
                   </button>
@@ -329,76 +396,75 @@ console.log(categoryList)
 }
 
 /* ─── theater card ─────────────────────────────────────── */
-function TheaterCard({ theaterData, selectedDate, movieId, movieName }) {
+function TheaterCard({ theaterData, selectedDate }) {
   const { theater, shows } = theaterData;
   const filtered = showsForDate(shows, selectedDate);
-
   if (!filtered.length) return null;
 
-  // Group shows by time (merge different screens with same time)
+  // Group by time
   const groupedByTime = {};
   filtered.forEach((show) => {
-    const time = formatTime(show.startTime);
-    if (!groupedByTime[time]) {
-      groupedByTime[time] = [];
-    }
-    groupedByTime[time].push(show);
+    const t = formatTime(show.startTime);
+    if (!groupedByTime[t]) groupedByTime[t] = [];
+    groupedByTime[t].push(show);
   });
 
-  // Sort times chronologically
   const sortedTimes = Object.keys(groupedByTime).sort((a, b) => {
-    const timeA = filtered.find((s) => formatTime(s.startTime) === a).startTime;
-    const timeB = filtered.find((s) => formatTime(s.startTime) === b).startTime;
-    return new Date(timeA) - new Date(timeB);
+    const tA = filtered.find((s) => formatTime(s.startTime) === a)?.startTime;
+    const tB = filtered.find((s) => formatTime(s.startTime) === b)?.startTime;
+    return new Date(tA) - new Date(tB);
   });
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex gap-4">
-      {/* theater icon */}
-      <div className="shrink-0 w-12 h-12 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden text-xs font-extrabold text-gray-500">
+    <div
+      style={{
+        background: 'var(--bg-2)',
+        border: '1px solid var(--border)',
+        borderRadius: 12,
+        padding: 20,
+        display: 'flex',
+        gap: 16,
+        alignItems: 'flex-start',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+      }}
+    >
+      {/* Theater initials */}
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 10,
+          background: 'var(--primary)',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 14,
+          fontWeight: 800,
+          flexShrink: 0,
+        }}
+      >
         {theater.name?.substring(0, 2).toUpperCase()}
       </div>
 
-      {/* theater info + shows */}
-      <div className="flex-1 min-w-0">
-        {/* name and heart */}
-        <div className="flex items-start justify-between gap-2">
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div>
-            <h3 className="text-sm font-extrabold text-gray-900 leading-tight">
+            <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-h)', margin: 0 }}>
               {theater.name}
-              {theater.city && (
-                <span className="font-semibold text-gray-600">
-                  , {theater.city}
-                </span>
-              )}
             </h3>
+            {theater.city && (
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, margin: '2px 0 0 0' }}>
+                📍 {theater.city}
+              </p>
+            )}
           </div>
-          <button className="shrink-0 text-gray-300 hover:text-red-500 transition-colors cursor-pointer">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          </button>
         </div>
 
-        {/* show time buttons */}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {sortedTimes.map((time) => (
-            <ShowTimeButton
-              key={time}
-              shows={groupedByTime[time]}
-              movieId={movieId}
-              movieName={movieName}
-            />
+        {/* Show times */}
+        <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {sortedTimes.map((t) => (
+            <ShowTimeButton key={t} shows={groupedByTime[t]} />
           ))}
         </div>
       </div>
@@ -408,119 +474,97 @@ function TheaterCard({ theaterData, selectedDate, movieId, movieName }) {
 
 /* ─── main page ────────────────────────────────────────── */
 export default function BookingPage() {
-  const { name, id } = useParams();
+  const { id } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { singleMovie: movie, shows, loading } = useSelector((s) => s.movies);
   const { latitude, longitude } = useSelector((s) => s.location);
-
   const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
-    if (!movie || movie._id !== id) {
-      dispatch(fetchMovieById(id));
-    }
-  }, [id]);
+    if (!movie || movie._id !== id) dispatch(fetchMovieById(id));
+  }, [id, dispatch]);
 
   useEffect(() => {
-    if (id && latitude && longitude) {
-      dispatch(getShows({ id, longitude, latitude }));
+    if (id) {
+      const lat = latitude || 28.6139;
+      const lon = longitude || 77.209;
+      dispatch(getShows({ id, longitude: lon, latitude: lat }));
     }
-  }, [id, latitude, longitude]);
+  }, [id, latitude, longitude, dispatch]);
 
   const theaters = shows?.result || [];
   const uniqueDates = getUniqueDates(theaters);
 
   useEffect(() => {
-    if (uniqueDates.length && !selectedDate) {
-      setSelectedDate(uniqueDates[0]);
-    }
-  }, [shows]);
+    if (uniqueDates.length && !selectedDate) setSelectedDate(uniqueDates[0]);
+  }, [shows, uniqueDates, selectedDate]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <svg
-            className="h-8 w-8 animate-spin text-[#471b8e]"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-          <p className="text-xs text-gray-500">Finding shows near you…</p>
-        </div>
+      <div
+        style={{
+          minHeight: '70vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 12,
+          color: 'var(--text-muted)',
+        }}
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite', color: 'var(--primary)' }}>
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="40 60" />
+        </svg>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>Loading available showtimes...</span>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* movie header (sticky) */}
+    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+      {/* Sticky movie header */}
       <MovieHeader movie={movie} />
 
-      {/* censor banner */}
-      {movie?.censorRating && (
-        <div className="max-w-6xl mx-auto">
-          <CensorBanner rating={movie.censorRating} />
-        </div>
-      )}
-
-      {/* date strip */}
-      <DateStrip
-        dates={uniqueDates}
-        selected={selectedDate}
-        onSelect={setSelectedDate}
-      />
-
-      {/* legend */}
+      {/* Date + legend */}
+      <DateStrip dates={uniqueDates} selected={selectedDate} onSelect={setSelectedDate} />
       <LegendBar />
 
-      {/* theater list */}
-      <div className="max-w-6xl mx-auto px-4 md:px-10 mt-6 mb-10 space-y-3">
+      {/* Theater list */}
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: '0 auto',
+          padding: '20px 16px 56px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
+      >
         {!theaters.length ? (
-          <div className="py-16 text-center">
-            <svg
-              className="h-12 w-12 text-gray-200 mx-auto mb-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4"
-              />
-            </svg>
-            <p className="text-gray-500 font-semibold text-sm">
-              No shows available.
-            </p>
-            <p className="text-gray-400 text-xs mt-1">
-              Try a different date or check back later.
-            </p>
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '80px 16px',
+              color: 'var(--text-muted)',
+              background: 'var(--bg-2)',
+              borderRadius: 12,
+              border: '1px solid var(--border)',
+            }}
+          >
+            <div style={{ fontSize: 36, marginBottom: 8 }}>🎬</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-h)', marginBottom: 4 }}>
+              No shows available for this date
+            </div>
+            <div style={{ fontSize: 13 }}>Please select another date above or check back soon.</div>
           </div>
         ) : (
           theaters.map((t, i) => (
             <TheaterCard
-              key={t.theater._id || i}
+              key={t.theater?._id || i}
               theaterData={t}
               selectedDate={selectedDate}
-              movieId={id}
-              movieName={name}
             />
           ))
         )}

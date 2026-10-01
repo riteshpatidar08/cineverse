@@ -1,45 +1,35 @@
-import React , {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import HeroSection from '../components/home/HeroSection';
+import MovieHeroCarousel from '../components/movies/MovieHeroCarousel';
 import FeaturedSpotlight from '../components/home/FeaturedSpotlight';
-import ValueProposition from '../components/home/ValueProposition';
-import PricingSection from '../components/home/PricingSection';
-import PartnerSection from '../components/home/PartnerSection';
-import TestimonialsSection from '../components/home/TestimonialsSection';
-import FaqSection from '../components/home/FaqSection';
-import CtaNewsletterSection from '../components/home/CtaNewsletterSection';
-import { nearByMovies } from '../../redux/slices/moviesSlice';
-import {useDispatch , useSelector } from 'react-redux'
+import OffersSection from '../components/home/OffersSection';
+import NearbyTheatersSection from '../components/home/NearbyTheatersSection';
+import UpcomingSection from '../components/home/UpcomingSection';
+import { nearByMovies, fetchAllMovies } from '../../redux/slices/moviesSlice';
+import { useDispatch, useSelector } from 'react-redux';
+
 export default function Home() {
-  const dispatch = useDispatch() ;
-  const {latitude , longitude } = useSelector((state)=>state.location);
-  useEffect(()=>{
-dispatch(nearByMovies({latitude, longitude}))
-  })
+  const dispatch = useDispatch();
+  const { latitude, longitude } = useSelector((s) => s.location);
+  const { moviesByCity, movies } = useSelector((s) => s.movies);
+
+  useEffect(() => {
+    if (latitude && longitude) {
+      dispatch(nearByMovies({ latitude, longitude }));
+    }
+    dispatch(fetchAllMovies());
+  }, [latitude, longitude, dispatch]);
+
+  const featuredList = moviesByCity?.length > 0 ? moviesByCity : movies || [];
+
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-text transition-colors duration-300 overflow-hidden">
-      {/* 1. Hero & Ticket Search Section */}
+    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <HeroSection />
-
-      {/* 2. Featured Movie Showcase & Category Spotlight */}
+      <MovieHeroCarousel movies={featuredList} />
       <FeaturedSpotlight />
-
-      {/* 3. Core Value Proposition & Technology Highlights */}
-      <ValueProposition />
-
-      {/* 4. CinePass Membership Tiers & Pricing */}
-      {/* <PricingSection /> */}
-
-      {/* 5. Cinema & Business Partner Solutions (B2B POS & Listing Hub) */}
-      {/* <PartnerSection /> */}
-
-      {/* 6. Testimonials, Reviews & Industry Press Quotes */}
-      <TestimonialsSection />
-
-      {/* 7. Frequently Asked Questions (FAQ Accordion) */}
-      <FaqSection />
-
-      {/* 8. Call to Action & VIP Newsletter Subscription */}
-      <CtaNewsletterSection />
+      <NearbyTheatersSection />
+      <OffersSection />
+      <UpcomingSection />
     </div>
   );
 }

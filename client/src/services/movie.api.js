@@ -26,3 +26,17 @@ export const getShowByMovieId = (data) => {
   const {latitude , longitude , id} = data
   return api.get(`movies/${id}/shows?lat=${latitude}&lon=${longitude}`);
 };
+
+export const getShowSeats = (showId) => {
+  return api.get(`shows/${showId}/seats`);
+};
+
+export const fetchTheaters = (params = {}) => {
+  return api.get('/theaters', { params });
+};
+
+export const fetchCities = (params = {}) => {
+  return api.get('/cities', { params });
+};
+
+
