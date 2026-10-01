@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-require('dotenv').config();
+const path = require("path");
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const Show = require("../models/showModel");
 const ShowSeat = require("../models/showSeatModel");
@@ -65,7 +66,7 @@ async function seedShowSeats() {
     // Map screens by theater + name
     const screenMap = {};
     screens.forEach((screen) => {
-      const key = `${screen.theater}_${screen.name}`;
+      const key = `${screen.theater.toString()}_${screen.name}`;
       screenMap[key] = screen;
     });
 
@@ -80,7 +81,7 @@ async function seedShowSeats() {
 
     for (let i = 0; i < shows.length; i++) {
       const show = shows[i];
-      const screenKey = `${show.theater}_${show.screenName}`;
+      const screenKey = `${show.theater.toString()}_${show.screenName}`;
       const screen = screenMap[screenKey];
 
       if (!screen) {
@@ -90,7 +91,7 @@ async function seedShowSeats() {
 
       for (const row of screen.rows) {
         // Get price from show's categoryPricing matching the row category
-        let price = 220; // default fallback
+        let price = show.categoryPricing?.[0]?.price || 200; // default fallback
         const matched = show.categoryPricing?.find(
           (cp) => cp.category.toLowerCase() === row.category.toLowerCase()
         );

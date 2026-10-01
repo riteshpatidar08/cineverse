@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
+const path = require("path");
 
 const Show = require("../models/showModel");
 const Movie = require("../models/movieModel");
 const Theater = require("../models/theaterModel");
 const Screen = require("../models/ScreenModel");
 
-require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const MONGO_URI = process.env.MONGODB_URI;
 
@@ -30,6 +31,8 @@ const THEATER_CATEGORIES = {
   // PVR/INOX theaters
   "PVR": {
     categories: [
+      { category: "REGULAR", price: 200 },
+      { category: "PREMIUM", price: 350 },
       { category: "CLASSIC", price: 200 },
       { category: "PRIME", price: 280 },
       { category: "GOLD", price: 450 },
@@ -38,6 +41,8 @@ const THEATER_CATEGORIES = {
   },
   "INOX": {
     categories: [
+      { category: "REGULAR", price: 220 },
+      { category: "PREMIUM", price: 380 },
       { category: "SILVER", price: 220 },
       { category: "GOLD", price: 300 },
       { category: "PLATINUM", price: 480 },
@@ -46,13 +51,16 @@ const THEATER_CATEGORIES = {
   },
   "Cinepolis": {
     categories: [
+      { category: "REGULAR", price: 210 },
+      { category: "PREMIUM", price: 350 },
       { category: "NORMAL", price: 210 },
-      { category: "PREMIUM", price: 320 },
       { category: "VIP", price: 550 }
     ]
   },
   "Rajmandir": {
     categories: [
+      { category: "REGULAR", price: 180 },
+      { category: "PREMIUM", price: 300 },
       { category: "STALL", price: 180 },
       { category: "DRESS_CIRCLE", price: 250 },
       { category: "BALCONY", price: 350 }
@@ -60,6 +68,8 @@ const THEATER_CATEGORIES = {
   },
   "Miraj": {
     categories: [
+      { category: "REGULAR", price: 190 },
+      { category: "PREMIUM", price: 320 },
       { category: "CLASSIC", price: 190 },
       { category: "EXECUTIVE", price: 270 },
       { category: "ROYAL", price: 420 }

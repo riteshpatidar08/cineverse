@@ -1,14 +1,10 @@
-// seed/theater.seed.js
-
+const path = require("path");
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const mongoose = require("mongoose");
 const Theater = require("../models/theaterModel");
+const { generateScreen } = require("../utils/generateSeats");
 
-const {
-  generateScreen,
-} = require("../utils/generateSeats");
-
-const MONGO_URI =
-  process.env.MONGO_URI 
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI; 
  
 
 
@@ -655,15 +651,7 @@ async function seedTheaters() {
     );
 
     inserted.forEach((theater) => {
-      console.log(
-        `${theater.name}: ${theater.screens.length} screens`
-      );
-
-      theater.screens.forEach((screen) => {
-        console.log(
-          `  ${screen.screenName}: ${screen.totalSeats} seats`
-        );
-      });
+      console.log(`  ✓ ${theater.name} (${theater.city})`);
     });
 
     await mongoose.connection.close();

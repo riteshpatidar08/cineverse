@@ -14,3 +14,6 @@ router.get('/movies/:id' , getMovieById)
 
 module.exports = router ;
 
+
+
+//path paramater use kiya current file k andr 

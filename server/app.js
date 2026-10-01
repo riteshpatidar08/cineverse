@@ -42,6 +42,7 @@ app.get('/', (req, res, next) => {
 app.use('/api/v1/auth' , authRoutes)
 app.use('/api/v1' , movieRoutes)
 app.use('/api/v1' , cityRoutes)
+app.use('/api/v1' , require('./routes/theaterRoutes.js'))
 app.use('/api/v1/screens'  , require('./routes/screenRoutes.js'))
 app.use('/api/v1/shows'  , require('./routes/showSeatRoutes.js'))
 //Handler for the route which is not found

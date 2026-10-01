@@ -491,3 +491,9 @@ exports.getShowsByMovieId = asyncHandler(async (req, res) => {
     },
   });
 });
+
+
+
+
+//GET METHOD KONSI API USE KIYA HAIN 
+//KONSI FILE MAIN CHECK KARUNGA AGAR MUJHE DEKHNA GET METHOD KONSE API USE HAIN .
