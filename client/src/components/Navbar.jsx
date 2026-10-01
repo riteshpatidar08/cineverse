@@ -59,8 +59,9 @@ export default function Navbar() {
     Cookies.remove('id');
     Cookies.remove('email');
     Cookies.remove('role');
+    
     Cookies.remove('isAuthenticated');
-    dispatch(authenticated({ id: '', name: '', email: '', role: '', isAuthenticated: null }));
+    dispatch(authenticated({ id: '', name: '', email: '', role: '', isAuthenticated: '' }));
     setDropdownOpen(false);
     setMobileMenuOpen(false);
     navigate('/');
