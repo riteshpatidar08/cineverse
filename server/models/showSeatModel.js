@@ -4,7 +4,8 @@ const showSeatSchema = new mongoose.Schema({
   show: { type: mongoose.Schema.Types.ObjectId, ref: 'Show', required: true },
   seatId: { type: String, required: true },
   status: { type: String, enum: ['available', 'locked', 'booked'] },
-  lockedBy: String,
+  lockedBy: {type :String},
+  //object /fslkfd
   lockedExpiresAt: Date,
   price: Number,
 });

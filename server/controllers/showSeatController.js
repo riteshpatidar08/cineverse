@@ -3,7 +3,6 @@ const Show = require('../models/showModel.js');
 const Screen = require('../models/ScreenModel.js');
 const ShowSeat = require('../models/showSeatModel.js');
 
-
 exports.getShowSeats = async (req, res) => {
   try {
     const { showId } = req.params;
@@ -19,25 +18,29 @@ exports.getShowSeats = async (req, res) => {
         message: 'Show not found',
       });
     }
-  
+
     let screen = await Screen.findOne({
       theater: show.theater._id,
       name: show.screenName,
     });
-  
+
     console.log(screen);
     let rows = [];
-  
+
     if (screen && screen.rows && screen.rows.length > 0) {
       rows = screen.rows;
     }
-  
+
     const showSeats = await ShowSeat.find({ show: showId });
-  
+
     const seatStatus = new Map();
     console.log(seatStatus);
     showSeats.forEach((s) => {
-      console.log('ssssssssssssssssssss', s.seatId, new Date(s.lockedExpiresAt));
+      console.log(
+        'ssssssssssssssssssss',
+        s.seatId,
+        new Date(s.lockedExpiresAt)
+      );
       const isSeatExpired =
         s.status === 'locked' && new Date() > new Date(s.lockedExpiresAt);
       console.log(isSeatExpired, 'expired/.....');
@@ -58,9 +61,10 @@ exports.getShowSeats = async (req, res) => {
 
     const newRows = rows.map((row) => {
       const rowCategory = row.category ? row.category.toUpperCase() : 'REGULAR';
-      const rowPrice = price[rowCategory] !== undefined ? price[rowCategory] : fallbackPrice;
+      const rowPrice =
+        price[rowCategory] !== undefined ? price[rowCategory] : fallbackPrice;
       console.log(rowPrice);
-  
+
       const newSeats = row.seats.map((seat) => {
         const seatId = `${row.label}${seat.number}`;
         console.log(seatId, 'idddididididdidididi');
@@ -73,7 +77,7 @@ exports.getShowSeats = async (req, res) => {
           rowPrice,
         };
       });
-  
+
       return {
         label: row.label,
         category: row.category,
@@ -98,15 +102,13 @@ exports.getShowSeats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error) ;
+    console.log(error);
     res.status(500).json({
       success: false,
-      error : error.message
+      error: error.message,
     });
   }
-} 
-
-;
+};
 
 // step 1  when we click on 9:30 show get the id from the frontend using path paramter /show/dsljdf
 
@@ -114,7 +116,59 @@ exports.getShowSeats = async (req, res) => {
 
 // 'Bearer kjsdfjk'
 
+//Admin dashboard =>  integration steps + is features k andar optimzation + asa koi features jaha par bug hain aur main isko fix kiya hain /
+// login /signup =>
+
+exports.lockSeat = async (req,res) => {
+  try {
+    const { showId } = req.params;
+    const { userId, seatIds } = req.body;
+console.log(userId , seatIds)
+    const seats = await ShowSeat.find({
+      show: showId,
+      seatId: { $in: seatIds },
+    });
+    // 8 1=> [1,8]
+    //NOTE mujhe wo document dedo jiski id seatIds main present hain , taki main check krlu ki us seat ka status kya hain
+console.log(seats , 'seatssss')
+    //seat k array k andr kew do field check status , expries time ;
+    //Booked , locked =>
+    for (let seat of seats) {
+      if (seat.status === 'booked') {
+        return res.status(409).json({
+          success: false,
+          message: 'Seat is already booked',
+        });
+      }
+      if (seat.status === 'locked' && seat.lockedExpiresAt > new Date()) {
+        return res.status(409).json({
+          success: false,
+          message: 'Seat is locked by another customer',
+        });
+      }
+    }
+
+    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+    // current time fetch karo + 10min
+
+    for (const seat of seats) {
+      seat.status = 'locked';
+      seat.lockedBy = userId;
+      seat.lockedExpiresAt = expiry;
+
+      await seat.save();
+    }
+    res.status(200).json({
+      success: true,
+      lockedSeats: seatIds,
+      expiresAt: expiry,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error : error.message
+    })
+  }
+};
 
 
-//Admin dashboard =>  integration steps + is features k andar optimzation + asa koi features jaha par bug hain aur main isko fix kiya hain / 
-// login /signup => 
+
