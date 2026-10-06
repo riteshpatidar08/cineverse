@@ -11,7 +11,6 @@ exports.getScreenByTheater = asyncHandler(async (req, res) => {
   });
 });
 
-
 //updateScreen
 //createScreen
 //getScreenById
