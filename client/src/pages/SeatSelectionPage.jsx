@@ -33,6 +33,17 @@ export default function SeatSelectionPage() {
 
   console.log(showData);
 
+  useEffect(()=>{
+
+const script = document.createElement('script');
+script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+
+document.body.appendChild(script);
+
+  },[])
+
+
+
 
   useEffect(() => {
     if (!showId) return;
@@ -116,6 +127,32 @@ console.log(groupsMap)
     return groups;
   }, [showData]);
 
+
+  const handleBooking =  () => {
+    const payload = {
+      showId: "show_123",
+      movieId: "movie_123",
+      theaterId: "theater_123",
+      screenName: "Screen 1",
+      seats: [
+        {
+          seatId: "A1",
+          price: 250,
+        },
+        {
+          seatId: "A2",
+          price: 250,
+        },
+      ],
+      paymentMethod: "razorpay",
+    };
+    
+    try {
+      // api call  
+    } catch (error) {
+      
+    }
+  }
   if (loading) {
     return (
       <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -522,13 +559,7 @@ console.log(groupsMap)
               </div>
 
               <button
-                onClick={() => {
-                  alert(
-                    `Proceeding to checkout for ${selectedSeats.length} seats (${selectedSeats
-                      .map((s) => s.seatId)
-                      .join(', ')}) total: ₹${totalPrice}`
-                  );
-                }}
+                onClick={handleBooking}
                 style={{
                   padding: '12px 32px',
                   borderRadius: 10,
