@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getShowSeats } from '../services/movie.api';
+import { createBooking } from '../services/booking.api';
 
 /* ─── Helpers ─────────────────────────────────────────── */
 function formatTime(iso) {
   if (!iso) return '';
   return new Date(iso)
-    .toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+    .toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })
     .toUpperCase();
 }
 
@@ -21,49 +26,53 @@ function formatDate(iso) {
 }
 
 export default function SeatSelectionPage() {
-  console.log(useParams())
+  console.log(useParams());
   const { showId } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showData, setShowData] = useState(null); //transform this login into redux toolkit
   const [selectedSeats, setSelectedSeats] = useState([]); // [{ seatId, price, rowLabel, seatNum }]
   const maxSeats = 10;
 
-  console.log(showData);
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
 
-  useEffect(()=>{
+    document.body.appendChild(script);
+  }, []);
 
-const script = document.createElement('script');
-script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-
-document.body.appendChild(script);
-
-  },[])
-
-
-
-
+  // console.log(movie)
+console.log(showId)
+console.log(loading)
   useEffect(() => {
     if (!showId) return;
     setLoading(true);
     getShowSeats(showId)
       .then((res) => {
         if (res.data && res.data.success && res.data.data) {
+          console.log(res.data.data)
           setShowData(res.data.data);
         } else {
+          console.log(res.data.message)
           setError(res.data?.message || 'Failed to load show seats');
         }
       })
       .catch((err) => {
         console.error('Error fetching show seats:', err);
-        setError(err.response?.data?.message || err.message || 'Error fetching show seats');
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            'Error fetching show seats'
+        );
       })
       .finally(() => {
+        console.log(loading)
         setLoading(false);
+        console.log(loading)
       });
-  }, [showId]);
+  }, []);
 
   const handleSeatClick = (seat, rowLabel, rowPrice) => {
     if (seat.status === 'booked' || seat.status === 'locked') return;
@@ -88,6 +97,8 @@ document.body.appendChild(script);
     }
   };
 
+  const { show, movie, theater } = showData;
+
   const totalPrice = useMemo(() => {
     return selectedSeats.reduce((sum, s) => sum + (s.price || 0), 0);
   }, [selectedSeats]);
@@ -108,13 +119,27 @@ document.body.appendChild(script);
       }
       groupsMap.get(cat).rows.push(row);
     });
-console.log(groupsMap)
+    console.log(groupsMap);
     const categoryRank = (cat) => {
       const c = cat.toUpperCase();
-      if (c.includes('LUXE') || c.includes('INSIGNIA') || c.includes('VIP')) return 50;
-      if (c.includes('PLATINUM') || c.includes('GOLD') || c.includes('ROYAL') || c.includes('BALCONY')) return 40;
-      if (c.includes('PREMIUM') || c.includes('PRIME') || c.includes('EXECUTIVE') || c.includes('DRESS')) return 30;
-      if (c.includes('SILVER') || c.includes('CLASSIC') || c.includes('NORMAL')) return 20;
+      if (c.includes('LUXE') || c.includes('INSIGNIA') || c.includes('VIP'))
+        return 50;
+      if (
+        c.includes('PLATINUM') ||
+        c.includes('GOLD') ||
+        c.includes('ROYAL') ||
+        c.includes('BALCONY')
+      )
+        return 40;
+      if (
+        c.includes('PREMIUM') ||
+        c.includes('PRIME') ||
+        c.includes('EXECUTIVE') ||
+        c.includes('DRESS')
+      )
+        return 30;
+      if (c.includes('SILVER') || c.includes('CLASSIC') || c.includes('NORMAL'))
+        return 20;
       if (c.includes('REGULAR') || c.includes('STALL')) return 10;
       return 0;
     };
@@ -122,43 +147,54 @@ console.log(groupsMap)
     const groups = Array.from(groupsMap.values());
 
     // Sort descending: highest price/tier at top (back of theater), lowest (REGULAR) at bottom (front near screen)
-    groups.sort((a, b) => (b.price - a.price) || (categoryRank(b.category) - categoryRank(a.category)));
+    groups.sort(
+      (a, b) =>
+        b.price - a.price || categoryRank(b.category) - categoryRank(a.category)
+    );
 
     return groups;
   }, [showData]);
 
 
-  const handleBooking =  () => {
+  const handleBooking = async () => {
     const payload = {
-      showId: "show_123",
-      movieId: "movie_123",
-      theaterId: "theater_123",
-      screenName: "Screen 1",
-      seats: [
-        {
-          seatId: "A1",
-          price: 250,
-        },
-        {
-          seatId: "A2",
-          price: 250,
-        },
-      ],
-      paymentMethod: "razorpay",
+      showId: showId,
+      movieId: movie._id,
+      theaterId: theater._id,
+      screenName: show.screenName,
+      seats: selectedSeats,
+      paymentMethod: 'razorpay',
     };
-    
+
     try {
-      // api call  
+      const result = await createBooking(payload);
+      console.log(result);
+      // api call
     } catch (error) {
-      
+      console.log(error);
     }
-  }
+  };
   if (loading) {
     return (
-      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        style={{
+          minHeight: '80vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <div style={{ textAlign: 'center' }}>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4" />
-          <p style={{ color: 'var(--text-muted, #6b7280)', fontSize: 14, fontWeight: 600 }}>Loading Seat Layout...</p>
+          <p
+            style={{
+              color: 'var(--text-muted, #6b7280)',
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
+            Loading Seat Layout...
+          </p>
         </div>
       </div>
     );
@@ -166,13 +202,34 @@ console.log(groupsMap)
 
   if (error || !showData) {
     return (
-      <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div
+        style={{
+          minHeight: '70vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+        }}
+      >
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🎬</div>
-          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8, color: 'var(--text-h, #111827)' }}>
+          <h2
+            style={{
+              fontSize: 20,
+              fontWeight: 800,
+              marginBottom: 8,
+              color: 'var(--text-h, #111827)',
+            }}
+          >
             Unable to Load Show Seats
           </h2>
-          <p style={{ color: 'var(--text-muted, #6b7280)', fontSize: 14, marginBottom: 20 }}>
+          <p
+            style={{
+              color: 'var(--text-muted, #6b7280)',
+              fontSize: 14,
+              marginBottom: 20,
+            }}
+          >
             {error || 'Show details not found.'}
           </p>
           <button
@@ -195,10 +252,10 @@ console.log(groupsMap)
     );
   }
 
-  const { show, movie, theater } = showData;
-
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: 120 }}>
+    <div
+      style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: 120 }}
+    >
       {/* ─── Header ─────────────────────────────────────────── */}
       <header
         style={{
@@ -242,7 +299,14 @@ console.log(groupsMap)
             </button>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <h1 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                <h1
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 800,
+                    color: '#0f172a',
+                    margin: 0,
+                  }}
+                >
                   {movie?.title || 'Movie Title'}
                 </h1>
                 {movie?.censorRating && (
@@ -261,8 +325,11 @@ console.log(groupsMap)
                 )}
               </div>
               <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>
-                <strong>{theater?.name}</strong> • {show?.screenName || 'Screen'} | {formatDate(show?.showDate)},{' '}
-                <span style={{ color: '#4f46e5', fontWeight: 700 }}>{formatTime(show?.startTime)}</span>
+                <strong>{theater?.name}</strong> •{' '}
+                {show?.screenName || 'Screen'} | {formatDate(show?.showDate)},{' '}
+                <span style={{ color: '#4f46e5', fontWeight: 700 }}>
+                  {formatTime(show?.startTime)}
+                </span>
               </div>
             </div>
           </div>
@@ -282,9 +349,25 @@ console.log(groupsMap)
           }}
         >
           {/* Seat Rows by Category */}
-          <div style={{ minWidth: 680, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28 }}>
+          <div
+            style={{
+              minWidth: 680,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 28,
+            }}
+          >
             {groupedRows.map((group, groupIdx) => (
-              <div key={groupIdx} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div
+                key={groupIdx}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+              >
                 {/* Category Header Label */}
                 <div
                   style={{
@@ -316,9 +399,18 @@ console.log(groupsMap)
                 </div>
 
                 {/* Rows in this group */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                    alignItems: 'center',
+                  }}
+                >
                   {group.rows.map((row) => {
-                    const layoutChars = row.layout ? row.layout.split('') : null;
+                    const layoutChars = row.layout
+                      ? row.layout.split('')
+                      : null;
                     let seatIndex = 0;
 
                     return (
@@ -345,100 +437,147 @@ console.log(groupsMap)
                         </div>
 
                         {/* Seat Items according to layout */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          {layoutChars ? (
-                            layoutChars.map((char, charIdx) => {
-                              if (char === '_' || char === ' ') {
-                                return <div key={charIdx} style={{ width: 20 }} />;
-                              }
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                          }}
+                        >
+                          {layoutChars
+                            ? layoutChars.map((char, charIdx) => {
+                                if (char === '_' || char === ' ') {
+                                  return (
+                                    <div key={charIdx} style={{ width: 20 }} />
+                                  );
+                                }
 
-                              const seat = row.seats[seatIndex++];
-                              if (!seat) {
-                                return <div key={charIdx} style={{ width: 32, height: 32 }} />;
-                              }
+                                const seat = row.seats[seatIndex++];
+                                if (!seat) {
+                                  return (
+                                    <div
+                                      key={charIdx}
+                                      style={{ width: 32, height: 32 }}
+                                    />
+                                  );
+                                }
 
-                              const isSelected = selectedSeats.some((s) => s.seatId === seat.seatId);
-                              const isOccupied = seat.status === 'booked' || seat.status === 'locked';
+                                const isSelected = selectedSeats.some(
+                                  (s) => s.seatId === seat.seatId
+                                );
+                                const isOccupied =
+                                  seat.status === 'booked' ||
+                                  seat.status === 'locked';
 
-                              return (
-                                <button
-                                  key={seat.seatId || charIdx}
-                                  onClick={() => handleSeatClick(seat, row.label, row.price)}
-                                  disabled={isOccupied}
-                                  style={{
-                                    width: 32,
-                                    height: 32,
-                                    borderRadius: 8,
-                                    border: isSelected
-                                      ? '1px solid #4f46e5'
-                                      : isOccupied
-                                      ? '1px solid #e2e8f0'
-                                      : '1px solid #cbd5e1',
-                                    background: isSelected
-                                      ? '#6366f1'
-                                      : isOccupied
-                                      ? '#f1f5f9'
-                                      : '#ffffff',
-                                    color: isSelected ? '#ffffff' : isOccupied ? '#94a3b8' : '#1e293b',
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: isOccupied ? 'not-allowed' : 'pointer',
-                                    transition: 'all 0.15s ease-in-out',
-                                    boxShadow: isSelected
-                                      ? '0 2px 8px rgba(99,102,241,0.4)'
-                                      : 'none',
-                                    transform: isSelected ? 'scale(1.05)' : 'none',
-                                  }}
-                                  title={`${seat.seatId} - ₹${row.price}`}
-                                >
-                                  {isOccupied ? '×' : seat.number}
-                                </button>
-                              );
-                            })
-                          ) : (
-                            /* Fallback if no layout string */
-                            row.seats.map((seat) => {
-                              const isSelected = selectedSeats.some((s) => s.seatId === seat.seatId);
-                              const isOccupied = seat.status === 'booked' || seat.status === 'locked';
+                                return (
+                                  <button
+                                    key={seat.seatId || charIdx}
+                                    onClick={() =>
+                                      handleSeatClick(
+                                        seat,
+                                        row.label,
+                                        row.price
+                                      )
+                                    }
+                                    disabled={isOccupied}
+                                    style={{
+                                      width: 32,
+                                      height: 32,
+                                      borderRadius: 8,
+                                      border: isSelected
+                                        ? '1px solid #4f46e5'
+                                        : isOccupied
+                                        ? '1px solid #e2e8f0'
+                                        : '1px solid #cbd5e1',
+                                      background: isSelected
+                                        ? '#6366f1'
+                                        : isOccupied
+                                        ? '#f1f5f9'
+                                        : '#ffffff',
+                                      color: isSelected
+                                        ? '#ffffff'
+                                        : isOccupied
+                                        ? '#94a3b8'
+                                        : '#1e293b',
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      cursor: isOccupied
+                                        ? 'not-allowed'
+                                        : 'pointer',
+                                      transition: 'all 0.15s ease-in-out',
+                                      boxShadow: isSelected
+                                        ? '0 2px 8px rgba(99,102,241,0.4)'
+                                        : 'none',
+                                      transform: isSelected
+                                        ? 'scale(1.05)'
+                                        : 'none',
+                                    }}
+                                    title={`${seat.seatId} - ₹${row.price}`}
+                                  >
+                                    {isOccupied ? '×' : seat.number}
+                                  </button>
+                                );
+                              })
+                            : /* Fallback if no layout string */
+                              row.seats.map((seat) => {
+                                const isSelected = selectedSeats.some(
+                                  (s) => s.seatId === seat.seatId
+                                );
+                                const isOccupied =
+                                  seat.status === 'booked' ||
+                                  seat.status === 'locked';
 
-                              return (
-                                <button
-                                  key={seat.seatId}
-                                  onClick={() => handleSeatClick(seat, row.label, row.price)}
-                                  disabled={isOccupied}
-                                  style={{
-                                    width: 32,
-                                    height: 32,
-                                    borderRadius: 8,
-                                    border: isSelected
-                                      ? '1px solid #4f46e5'
-                                      : isOccupied
-                                      ? '1px solid #e2e8f0'
-                                      : '1px solid #cbd5e1',
-                                    background: isSelected
-                                      ? '#6366f1'
-                                      : isOccupied
-                                      ? '#f1f5f9'
-                                      : '#ffffff',
-                                    color: isSelected ? '#ffffff' : isOccupied ? '#94a3b8' : '#1e293b',
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: isOccupied ? 'not-allowed' : 'pointer',
-                                    transition: 'all 0.15s ease-in-out',
-                                    boxShadow: isSelected ? '0 2px 8px rgba(99,102,241,0.4)' : 'none',
-                                  }}
-                                >
-                                  {isOccupied ? '×' : seat.number}
-                                </button>
-                              );
-                            })
-                          )}
+                                return (
+                                  <button
+                                    key={seat.seatId}
+                                    onClick={() =>
+                                      handleSeatClick(
+                                        seat,
+                                        row.label,
+                                        row.price
+                                      )
+                                    }
+                                    disabled={isOccupied}
+                                    style={{
+                                      width: 32,
+                                      height: 32,
+                                      borderRadius: 8,
+                                      border: isSelected
+                                        ? '1px solid #4f46e5'
+                                        : isOccupied
+                                        ? '1px solid #e2e8f0'
+                                        : '1px solid #cbd5e1',
+                                      background: isSelected
+                                        ? '#6366f1'
+                                        : isOccupied
+                                        ? '#f1f5f9'
+                                        : '#ffffff',
+                                      color: isSelected
+                                        ? '#ffffff'
+                                        : isOccupied
+                                        ? '#94a3b8'
+                                        : '#1e293b',
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      cursor: isOccupied
+                                        ? 'not-allowed'
+                                        : 'pointer',
+                                      transition: 'all 0.15s ease-in-out',
+                                      boxShadow: isSelected
+                                        ? '0 2px 8px rgba(99,102,241,0.4)'
+                                        : 'none',
+                                    }}
+                                  >
+                                    {isOccupied ? '×' : seat.number}
+                                  </button>
+                                );
+                              })}
                         </div>
                       </div>
                     );
@@ -448,12 +587,20 @@ console.log(groupsMap)
             ))}
 
             {/* ─── Screen Perspective Visual ─────────────────────────────────────────── */}
-            <div style={{ marginTop: 40, textAlign: 'center', width: '100%', maxWidth: 640 }}>
+            <div
+              style={{
+                marginTop: 40,
+                textAlign: 'center',
+                width: '100%',
+                maxWidth: 640,
+              }}
+            >
               <div
                 style={{
                   height: 36,
                   width: '100%',
-                  background: 'linear-gradient(180deg, rgba(129, 140, 248, 0.4) 0%, rgba(99, 102, 241, 0.05) 100%)',
+                  background:
+                    'linear-gradient(180deg, rgba(129, 140, 248, 0.4) 0%, rgba(99, 102, 241, 0.05) 100%)',
                   borderRadius: '50% 50% 0 0 / 100% 100% 0 0',
                   borderTop: '3px solid #818cf8',
                   boxShadow: '0 -8px 24px rgba(99,102,241,0.25)',
@@ -489,11 +636,29 @@ console.log(groupsMap)
               }}
             >
               {[
-                { label: 'Available', color: '#ffffff', border: '#cbd5e1', text: '' },
-                { label: 'Occupied', color: '#f1f5f9', border: '#e2e8f0', text: '×' },
-                { label: 'Selected', color: '#6366f1', border: '#4f46e5', text: '' },
+                {
+                  label: 'Available',
+                  color: '#ffffff',
+                  border: '#cbd5e1',
+                  text: '',
+                },
+                {
+                  label: 'Occupied',
+                  color: '#f1f5f9',
+                  border: '#e2e8f0',
+                  text: '×',
+                },
+                {
+                  label: 'Selected',
+                  color: '#6366f1',
+                  border: '#4f46e5',
+                  text: '',
+                },
               ].map(({ label, color, border, text }) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div
+                  key={label}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                >
                   <div
                     style={{
                       width: 20,
@@ -511,7 +676,11 @@ console.log(groupsMap)
                   >
                     {text}
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>{label}</span>
+                  <span
+                    style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}
+                  >
+                    {label}
+                  </span>
                 </div>
               ))}
             </div>
@@ -545,17 +714,33 @@ console.log(groupsMap)
           >
             <div>
               <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
-                {selectedSeats.length} {selectedSeats.length === 1 ? 'Seat' : 'Seats'} Selected
+                {selectedSeats.length}{' '}
+                {selectedSeats.length === 1 ? 'Seat' : 'Seats'} Selected
               </div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 800,
+                  color: '#0f172a',
+                  marginTop: 2,
+                }}
+              >
                 {selectedSeats.map((s) => s.seatId).join(', ')}
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Total Price</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#4f46e5' }}>₹{totalPrice}</div>
+                <div
+                  style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}
+                >
+                  Total Price
+                </div>
+                <div
+                  style={{ fontSize: 20, fontWeight: 900, color: '#4f46e5' }}
+                >
+                  ₹{totalPrice}
+                </div>
               </div>
 
               <button
@@ -563,7 +748,8 @@ console.log(groupsMap)
                 style={{
                   padding: '12px 32px',
                   borderRadius: 10,
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  background:
+                    'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                   color: '#ffffff',
                   fontWeight: 800,
                   fontSize: 15,
@@ -572,8 +758,12 @@ console.log(groupsMap)
                   boxShadow: '0 4px 14px rgba(99,102,241,0.4)',
                   transition: 'transform 0.1s ease',
                 }}
-                onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.97)')}
-                onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                onMouseDown={(e) =>
+                  (e.currentTarget.style.transform = 'scale(0.97)')
+                }
+                onMouseUp={(e) =>
+                  (e.currentTarget.style.transform = 'scale(1)')
+                }
               >
                 Proceed to Pay ₹{totalPrice}
               </button>

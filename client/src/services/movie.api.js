@@ -28,6 +28,7 @@ export const getShowByMovieId = (data) => {
 };
 
 export const getShowSeats = (showId) => {
+  console.log(showId , 'get...')
   return api.get(`shows/${showId}/seats`);
 };
 

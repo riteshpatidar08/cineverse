@@ -50,6 +50,8 @@ const bookingSchema = new mongoose.Schema({
   },
   paymentsDetails: {
     paymentMethod: { type: String },
+    razorPaySignature  : {type : String},
+    razorPayPaymentId : {type : String},
     status: {
       type: String,
       enum: ['success', 'failed'],

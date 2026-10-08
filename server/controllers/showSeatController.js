@@ -5,8 +5,9 @@ const ShowSeat = require('../models/showSeatModel.js');
 
 exports.getShowSeats = async (req, res) => {
   try {
-    const { showId } = req.params;
 
+    const { showId } = req.params;
+console.log('showId...........................')
     const show = await Show.findById(showId)
       .populate('movie')
       .populate('theater')

@@ -1,6 +1,7 @@
 const Booking = require('./bookingControllers.js');
 const ShowSeat = require('../models/showSeatModel.js');
 const razorpay = require('../config/razorpay.js');
+const crypto = require('crypto');
 exports.createBoooking = async (req, res) => {
   try {
     const {
@@ -50,7 +51,7 @@ exports.createBoooking = async (req, res) => {
       pricing: {
         seatsTotal: seatsTotalPricing,
         totalSeats: seats.length,
-        totalAmount,
+      totalAmount,
         convenienceFee,
       },
     });
@@ -64,14 +65,62 @@ exports.createBoooking = async (req, res) => {
       );
     });
 
+    await Promise.all(seatsUpdate);
+
+    const bookingData = await Booking.findById(booking._id)
+      .populate('movie')
+      .populate('theater')
+      .populate('show');
+
     res.status(200).json({
       message: 'success',
-      booking,
+      booking: bookingData,
       razorpayOrder,
     });
   } catch (error) {
     res.status(500).json({
       message: error.message,
     });
+  }
+};
+
+exports.verifyPayment = async (req, res, next) => {
+  try {
+    const { paymentId, signature, razorPayOrderId } = req.body;
+    const booking = await Booking.findOne({ boookingId: razorPayOrderId });
+
+    if (!booking) {
+      const error = new Error('order not found');
+      throw error;
+    }
+    const generateSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_API_SECRET)
+      .update(razorPayOrderId + '|' + paymentId);
+
+    if (generateSignature != signature) {
+      res.status(400).json({
+        success: false,
+        message: 'Payment verfication Failed',
+      });
+    }
+
+    const payment = await razorpay.payments.fetch(paymentId);
+    if (payment.status === 'captured' || payment.status === 'authorized') {
+      booking.paymentsDetails.status = 'confirmed';
+      booking.razorPaySignature = signature;
+      booking.razorPayPaymentId = paymentId;
+      await booking.save();
+    } else if (payment.status === 'failed') {
+      booking.paymentsDetails, (status = 'failed');
+      await booking.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'payment verified',
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
 };
