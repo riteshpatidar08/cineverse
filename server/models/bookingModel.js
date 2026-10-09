@@ -12,7 +12,7 @@ const bookingSchema = new mongoose.Schema({
   },
   movie: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'movie',
+    ref: 'Movie',
   },
 
   theater: {
@@ -68,7 +68,7 @@ const bookingSchema = new mongoose.Schema({
 //security ????t? req.body validate kiya kya headers kiya
 
 
-const Booking = mongoose.model('Booking' , bookingSchema) ;
+const Booking = mongoose.model('Booking' , bookingSchema)
 
 
 module.exports = Booking ;

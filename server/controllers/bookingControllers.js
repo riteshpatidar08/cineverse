@@ -1,4 +1,4 @@
-const Booking = require('./bookingControllers.js');
+const Booking = require('../models/bookingModel.js');
 const ShowSeat = require('../models/showSeatModel.js');
 const razorpay = require('../config/razorpay.js');
 const crypto = require('crypto');
@@ -27,7 +27,7 @@ exports.createBoooking = async (req, res) => {
     const bookingId = 'abc';
     const convenienceFee = (seatsTotalPricing * 16) / 100;
     const totalAmount = seatsTotalPricing + convenienceFee;
-
+console.log(razorpay)
     const razorpayOrder = await razorpay.orders.create({
       amount: totalAmount * 100,
       currency: 'INR',
@@ -38,9 +38,9 @@ exports.createBoooking = async (req, res) => {
       },
     });
 
-    console.log(orders);
+    // console.log(orders);
 
-    const booking = await booking.create({
+    const booking = await Booking.create({
       bookingId: razorpayOrder.id,
       user: req.user ? req.user.id : null,
       movie: movieId,
@@ -75,10 +75,12 @@ exports.createBoooking = async (req, res) => {
     res.status(200).json({
       message: 'success',
       booking: bookingData,
-      razorpayOrder,
+      razorpayOrder : {...razorpayOrder , key : process.env.RAZORPAY_API_KEY}
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json({
+      
       message: error.message,
     });
   }

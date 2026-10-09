@@ -10,6 +10,7 @@ import OpenRoutes from './components/OpenRoutes';
 import MovieDetails from './components/movies/MovieDetails';
 import BookingPage from './pages/BookingPage';
 import SeatSelectionPage from './pages/SeatSelectionPage';
+import BookingDetailsPage from './pages/BookingDetailsPage';
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
           <Route path="/movies/:name/:id" element={<MovieDetails />} />
           <Route path="/booking/:name/:id" element={<BookingPage />} />
           <Route path="/seat-select/:showId" element={<SeatSelectionPage />} />
+          <Route path="/checkout" element={<BookingDetailsPage />} />
+          <Route path="/booking-details" element={<BookingDetailsPage />} />
           <Route path="/browse" element={<Movies />} />
 
           <Route element={<OpenRoutes />}>

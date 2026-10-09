@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getShowSeats } from '../services/movie.api';
-import { createBooking } from '../services/booking.api';
+import { createBooking, verifyPayment } from '../services/booking.api';
 
 /* ─── Helpers ─────────────────────────────────────────── */
 function formatTime(iso) {
@@ -30,7 +30,7 @@ export default function SeatSelectionPage() {
   const { showId } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showData, setShowData] = useState(null); //transform this login into redux toolkit
   const [selectedSeats, setSelectedSeats] = useState([]); // [{ seatId, price, rowLabel, seatNum }]
@@ -44,18 +44,18 @@ export default function SeatSelectionPage() {
   }, []);
 
   // console.log(movie)
-console.log(showId)
-console.log(loading)
+  console.log(showId);
+  console.log(loading);
   useEffect(() => {
     if (!showId) return;
     setLoading(true);
     getShowSeats(showId)
       .then((res) => {
         if (res.data && res.data.success && res.data.data) {
-          console.log(res.data.data)
+          console.log(res.data.data);
           setShowData(res.data.data);
         } else {
-          console.log(res.data.message)
+          console.log(res.data.message);
           setError(res.data?.message || 'Failed to load show seats');
         }
       })
@@ -68,11 +68,9 @@ console.log(loading)
         );
       })
       .finally(() => {
-        console.log(loading)
         setLoading(false);
-        console.log(loading)
       });
-  }, []);
+  }, [showId]);
 
   const handleSeatClick = (seat, rowLabel, rowPrice) => {
     if (seat.status === 'booked' || seat.status === 'locked') return;
@@ -97,7 +95,7 @@ console.log(loading)
     }
   };
 
-  const { show, movie, theater } = showData;
+  const { show, movie, theater } = showData || {};
 
   const totalPrice = useMemo(() => {
     return selectedSeats.reduce((sum, s) => sum + (s.price || 0), 0);
@@ -155,24 +153,16 @@ console.log(loading)
     return groups;
   }, [showData]);
 
-
-  const handleBooking = async () => {
-    const payload = {
-      showId: showId,
-      movieId: movie._id,
-      theaterId: theater._id,
-      screenName: show.screenName,
-      seats: selectedSeats,
-      paymentMethod: 'razorpay',
-    };
-
-    try {
-      const result = await createBooking(payload);
-      console.log(result);
-      // api call
-    } catch (error) {
-      console.log(error);
-    }
+  const handleProceed = () => {
+    if (!showData || selectedSeats.length === 0) return;
+    navigate('/checkout', {
+      state: {
+        showId,
+        showData,
+        selectedSeats,
+        totalPrice,
+      },
+    });
   };
   if (loading) {
     return (
@@ -744,9 +734,9 @@ console.log(loading)
               </div>
 
               <button
-                onClick={handleBooking}
+                onClick={handleProceed}
                 style={{
-                  padding: '12px 32px',
+                  padding: '12px 36px',
                   borderRadius: 10,
                   background:
                     'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
@@ -765,7 +755,7 @@ console.log(loading)
                   (e.currentTarget.style.transform = 'scale(1)')
                 }
               >
-                Proceed to Pay ₹{totalPrice}
+                Proceed
               </button>
             </div>
           </div>

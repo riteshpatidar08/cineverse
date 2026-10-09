@@ -8,7 +8,7 @@ exports.getCities = asyncHandler(async (req, res) => {
   const { s } = req.query;
   const filter = {};
   if (s) {
-    filter.cityName = { $regex: s, $options: 'i' };
+    filter.cityName = { $regex: s, $opptions: 'i' };
   }
   const cities = await City.find(filter).sort({ cityName: 1 }).lean();
   res.status(200).json({
