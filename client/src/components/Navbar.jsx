@@ -269,7 +269,53 @@ export default function Navbar() {
                     )}
                   </div>
 
-                  <div style={{ padding: '4px' }}>
+                  <div style={{ padding: '6px' }}>
+                    {role === 'admin' && (
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '8px 12px',
+                          borderRadius: 6,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: 'var(--text-h)',
+                          textDecoration: 'none',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-3)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        👑 Platform Admin Console
+                      </Link>
+                    )}
+
+                    {(role === 'admin' || role === 'theatreAdmin') && (
+                      <Link
+                        to="/theater-admin/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '8px 12px',
+                          borderRadius: 6,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: 'var(--text-h)',
+                          textDecoration: 'none',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-3)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        🎭 Theater Partner Console
+                      </Link>
+                    )}
+
+                    <div style={{ borderTop: '1px solid var(--border)', margin: '4px 0' }} />
+
                     <button
                       onClick={handleLogout}
                       style={{

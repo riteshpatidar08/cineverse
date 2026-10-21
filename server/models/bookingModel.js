@@ -57,18 +57,26 @@ const bookingSchema = new mongoose.Schema({
       enum: ['success', 'failed'],
     },
   },
-  status : {
-    type : String ,
-    enum : ['confirmed' , 
-        'cancelled'
-    ]
-  }
-});
+    status: {
+      type: String,
+      enum: ['confirmed', 'cancelled'],
+      default: 'confirmed',
+    },
+    isCheckedIn: {
+      type: Boolean,
+      default: false,
+    },
+    checkedInAt: {
+      type: Date,
+    },
+    checkedInBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  },
+  { timestamps: true }
+);
 
-//security ????t? req.body validate kiya kya headers kiya
+const Booking = mongoose.model('Booking', bookingSchema);
 
-
-const Booking = mongoose.model('Booking' , bookingSchema)
-
-
-module.exports = Booking ;
+module.exports = Booking;

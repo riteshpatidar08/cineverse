@@ -19,8 +19,8 @@ const userSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     role: {
       type: String,
-      enum: ['user', 'theatreAdmin', 'admin'],
-      deafult: 'user',
+      enum: ['customer', 'theatreAdmin', 'admin'],
+      default: 'customer',
     },
     avatar: { type: String },
     is2FAEnabled: { type: Boolean, default: false },

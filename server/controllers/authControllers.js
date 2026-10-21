@@ -63,7 +63,15 @@ console.log(user)
     });
 
     return res.status(200).json({
+      success: true,
       message: 'success',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   }
 
@@ -123,7 +131,15 @@ exports.verifyOtp = asyncHandler(async () => {
   });
 
   return res.status(200).json({
+    success: true,
     message: 'success',
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
   });
 });
 

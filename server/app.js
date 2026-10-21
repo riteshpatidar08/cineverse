@@ -13,11 +13,17 @@ const cookieParse =require('cookie-parser')
 const cors = require('cors')
 app.use(express.json())
 //NOTE sync the .env files variables in process.env
-app.use(cors(
-  {origin : "http://localhost:5173" , 
-    credentials : true
-  }
-));
+app.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174',
+    ],
+    credentials: true,
+  })
+);
 dotenv.config();
 
 if (process.env.NODE_ENV === 'DEVELOPMENT') {
@@ -46,6 +52,8 @@ app.use('/api/v1' , require('./routes/theaterRoutes.js'))
 app.use('/api/v1/screens'  , require('./routes/screenRoutes.js'))
 app.use('/api/v1/shows'  , require('./routes/showSeatRoutes.js'))
 app.use('/api/v1/booking' , require('./routes/bookingRoutes.js'))
+app.use('/api/v1/admin', require('./routes/adminRoutes.js'))
+app.use('/api/v1/theater-admin', require('./routes/theaterAdminRoutes.js'))
 //Handler for the route which is not found
 app.use((req, res) => {
   res.status(404).json({

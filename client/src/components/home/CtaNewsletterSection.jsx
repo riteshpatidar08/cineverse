@@ -14,7 +14,7 @@ export default function CtaNewsletterSection() {
   };
 
   return (
-    <section
+    <section className=''
       style={{
         background: 'linear-gradient(135deg, rgba(71,27,142,0.08) 0%, rgba(225,29,72,0.05) 100%)',
         borderBottom: '1px solid var(--border)',

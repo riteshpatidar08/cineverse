@@ -6,7 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 function Login() {
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated , role } = useSelector((state) => state.auth);
+  console.log(role)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -24,12 +25,17 @@ function Login() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && role === 'admin') {
+      navigate('/admin/dashboard');
+    } else if (isAuthenticated && role === 'theatreAdmin') {
+      navigate('/theater-admin/dashboard');
+    } else if (isAuthenticated) {
       navigate('/');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, role]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
